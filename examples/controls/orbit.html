@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>World Basics</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+<link rel="stylesheet" href="../_css/demo.css">
+
+<script src="../../build/gamethree.min.js"></script>
+</head>
+
+<body>
+
+<!--Webgl wrapper-->
+<div id="webGL"></div>
+
+<!--Info box for examples-->
+<div id="infoBox">
+    <h2>Orbit Controls and example GUI</h2>
+</div>
+
+<!--Main js-->
+<script>
+
+//Create world and setup
+var world = new THREE.World();
+world.init("webGL", {renderType: "webgl"});
+
+//Get and move camera default is at 0,0,0
+var camera = world.getCamera();
+camera.position.set(50, 50, 10);
+camera.lookAt(new THREE.Vector3(0,0,0));
+
+//Create orbit controls
+var controls = new THREE.OrbitControls(camera);
+
+//create geometries with built in colors
+var greyLambert = THREE.Materials.get("greylambert");
+
+//Create a floor
+var planegeo = new THREE.PlaneBufferGeometry(30, 30, 32);
+var plane = new THREE.Mesh( planegeo, greyLambert );
+plane.rotation.x = -(Math.PI / 2);
+
+//Load cloud using univeral loader
+world.universalLoad("../_models/cloud/cloud.json", function(geometry) {
+
+    var mesh = new THREE.Mesh(geometry, new THREE.MeshNormalMaterial);
+
+    world.addLight(mesh);
+});
+
+var light = new THREE.SpotLight(0xffffff);
+light.position.set(50, 150, 50);
+
+//Add box and light
+world.addMesh(plane);
+world.addLight(light);
+
+//Launch world
+world.LaunchWorld();
+
+</script>
+
+</body>
+</html>

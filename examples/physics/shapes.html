@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>THREE | Physics : Shapes</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link rel="stylesheet" href="../_css/demo.css">
+
+    <script src="../../build/gamethree.min.js"></script>
+</head>
+
+<body>
+
+<!--Webgl wrapper-->
+<div id="webGL"></div>
+
+<!--Info box for examples-->
+<div id="infoBox">
+    <h2>Physical shapes Game Three</h2>
+</div>
+
+<!--DAT GUI div-->
+<div id="gui"></div>
+
+<!--Main js-->
+<script src="../_js/lib/dat.gui.min.js"></script>
+<script src="../_js/guis/Physics.GUI.js"></script>
+<script>
+
+//World and controls
+var world, camera, controls, directionallight;
+
+//THREE Physics
+var physics, physicsGUI;
+
+//3D meshes
+var plane, boxMesh, sphereMesh, cynlinderMesh, cloudMesh;
+
+//3D Materials
+var greyLambert = new THREE.MeshLambertMaterial({color: 0xffffff});
+var bluePhong = new THREE.MeshPhongMaterial({
+    ambient: 0x000000, color: 0x9EB5FF, specular: 0xffffff,
+    shading: THREE.FlatShading
+});
+
+
+//Create world and setup
+init();
+initShapes();
+function init() {
+
+    world = new THREE.World();
+    world.init("webGL", {renderType: "webgl"});
+    world.useShadows(true);
+
+    //Get and move camera default is at 0,0,0
+    camera = world.getCamera();
+    camera.position.set(430, 200, 0);
+
+    controls = new THREE.OrbitControls(camera);
+
+    //Physics set using THREE.Physics object
+    physics = new THREE.Physics({
+        gravity: new THREE.Vector3(0, -9.8, 0)
+    });
+
+    //Set Frames per second
+    physics.fps = 40;
+
+    //Set GUI see _js/guis/Physics.GUI.js
+    physicsGUI = new THREE.Physics.GUI(physics);
+    physicsGUI.appendToElement("gui");
+
+    //Create event handler for physics object add
+    world.on("add-mesh", function(event) {
+
+        //Object set to newly created THREE.Object3D
+        var object = event.object;
+
+        //add object to physics world
+        physics.addObject(object);
+
+    });
+
+    //Create event handler for render before
+    world.on("before-render", function(event) {
+
+        //Get delta of seconds
+        var delta = event.delta;
+
+        //Update physics and change objects
+        physics.update(delta);
+
+    });
+
+    //Create a floor
+    var planegeo = new THREE.PlaneBufferGeometry(230, 230, 64);
+    plane = new THREE.Mesh(planegeo, greyLambert);
+    plane.material.color.setHex(0xffffff);
+    plane.rotation.x = -(Math.PI / 2);
+    plane.receiveShadow = true;
+
+    //Create light
+    directionallight = new THREE.DirectionalLight(0xfffff0, .8, 20, 400);
+    directionallight.position.set(60, 60, -10);
+    directionallight.target = plane;
+
+    directionallight.castShadow = true;
+    directionallight.shadowBias = .0001;
+    directionallight.shadowCameraNear = 5;
+    directionallight.shadowCameraFar = 230;
+    directionallight.shadowCameraFov = 80;
+    directionallight.shadowMapHeight = 4096; //2048
+    directionallight.shadowMapWidth = 4096;
+    directionallight.shadowDarkness = .8;
+    //directionallight.shadowCameraVisible = true;
+
+    //Add plane and light
+    world.addMesh(plane);
+    world.addLight(directionallight);
+
+}
+
+//Init physical shapes
+function initShapes() {
+
+    //Mesh creator from geometry
+    var meshCreate = function(geometry) {
+
+        var mesh = new THREE.Mesh(geometry, bluePhong);
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        return mesh;
+
+    };
+
+    //Box Shape setup
+    var boxMesh = meshCreate(new THREE.BoxGeometry(15,15,15));
+    boxMesh.position.set(0, 40, 40);
+    var startQuat1 = boxMesh.quaternion.clone();
+    var startPosition1 = boxMesh.position.clone();
+
+    //Sphere shape
+    var sphereMesh = meshCreate(new THREE.SphereGeometry(11, 17, 17));
+    sphereMesh.position.set(0, 40, -40);
+    var startQuat2 = sphereMesh.quaternion.clone();
+    var startPosition2 = sphereMesh.position.clone();
+
+    //Cylinder
+    var cylinderMesh = meshCreate(new THREE.CylinderGeometry(11, 11, 20, 32));
+    cylinderMesh.geometry.center();
+    cylinderMesh.position.set(-40, 40, 0);
+    var startQuat3 = cylinderMesh.quaternion.clone();
+    var startPosition3 = cylinderMesh.position.clone();
+
+    //Tetrahedron
+    var points = [
+        new THREE.Vector3( 20, 0, 0 ),
+        new THREE.Vector3( 0, 20, 0 ),
+        new THREE.Vector3( 0, 0, 20 ),
+        new THREE.Vector3( 0, 0, 0 )
+    ];
+
+    var tetraGeo = new THREE.ConvexGeometry( points );
+
+    var tetraMesh = meshCreate(tetraGeo);
+    tetraMesh.geometry.center();
+    tetraMesh.position.set(40, 40, 0);
+    var startQuat4 = tetraMesh.quaternion.clone();
+    var startPosition4 = tetraMesh.position.clone();
+
+
+    //Set masses
+    boxMesh.mass = sphereMesh.mass = cylinderMesh.mass = tetraMesh.mass = 1;
+
+    //Add shapes to world and physics
+    world.addMesh(boxMesh);
+    world.addMesh(sphereMesh);
+    world.addMesh(cylinderMesh);
+    world.addMesh(tetraMesh);
+
+
+    //Get cannon bodies for meshes
+    var boxbody = physics.getObject(boxMesh.uuid).cannon;
+    var spherebody = physics.getObject(sphereMesh.uuid).cannon;
+    var cylinderBody = physics.getObject(cylinderMesh.uuid).cannon;
+    var tetraBody = physics.getObject(tetraMesh.uuid).cannon;
+
+    //create sample box falling
+    var boxSetup = function() {
+        boxbody.wakeUp();
+        spherebody.wakeUp();
+        cylinderBody.wakeUp();
+        tetraBody.wakeUp();
+
+        //Set starting positions
+        boxbody.position.copy(startPosition1);
+        boxbody.quaternion.copy(startQuat1);
+
+        spherebody.position.copy(startPosition2);
+        spherebody.quaternion.copy(startQuat2);
+
+        cylinderBody.position.copy(startPosition3);
+        cylinderBody.quaternion.copy(startQuat3);
+
+        tetraBody.position.copy(startPosition4);
+        tetraBody.quaternion.copy(startQuat4);
+    };
+
+    //Create sample box move with velocity
+    var boxCollide = function() {
+
+        //Move and Rotate the object to get a cool fall
+        boxSetup();
+
+        //Apply a force after timeout
+        boxbody.velocity.set(0, 10, -40);
+        boxbody.angularVelocity.set(3, 2, 0);
+
+        spherebody.velocity.set(0, 10, 40);
+        spherebody.angularVelocity.set(0, 1, 4);
+
+        cylinderBody.velocity.set(20, 0, 0);
+        cylinderBody.angularVelocity.set(0, 3, 1);
+
+        tetraBody.velocity.set(-20, 0, 0);
+        tetraBody.angularVelocity.set(0, 4, 4);
+
+    };
+
+    //Launch world
+    world.LaunchWorld();
+
+    //Add box fly scene
+    physicsGUI.addScene("Fall", boxSetup);
+    physicsGUI.addScene("Collide", boxCollide);
+    boxCollide();
+
+}
+
+
+</script>
+
+</body>
+</html>

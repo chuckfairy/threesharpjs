@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="UTF-8">
+
+<script src="../../../../build/gamethree.min.js"></script>
+
+</head>
+
+<body>
+
+<script>
+
+var world = new THREE.World();
+
+window.onload = function() {
+
+    initJengaScene();
+    saveScene();
+
+}
+
+//Jenga scene
+function initJengaScene() {
+
+    //Jenga block defaults
+    var jengaBlockGeo = new THREE.BoxGeometry(80, 25, 25);
+    var jengaTexture = THREE.ImageUtils.loadTexture( '../../../_assets/textures/brick1.jpg' );
+    jengaTexture.wrapS = jengaTexture.wrapT = THREE.RepeatWrapping
+    jengaTexture.repeat.set(0.3, 0.3);
+
+    var jengaBlockMaterial = new THREE.MeshPhongMaterial({
+        color: 0xffffff, map: jengaTexture
+    });
+
+    var jengaBlock = new THREE.Mesh(jengaBlockGeo, jengaBlockMaterial);
+    jengaBlock.castShadow = true;
+    jengaBlock.receiveShadow = true;
+
+    var jengaHeight = 10;
+
+    //load a jenga row rotation based on row number
+    var loadJengaRow = function(i) {
+
+        var rotation = ((i + 2) % 2) ? 0 : Math.PI / 2;
+
+        for( var t = 0; t < 3; t++) {
+
+            var posDir = ( !(rotation) ) ? "z" : "x";
+
+            var jengaClone = jengaBlock.clone();
+            jengaClone.position[posDir] = (t * 27) - 27;
+            jengaClone.position.y = (i * 30) + 5;
+            jengaClone.rotation.y = rotation;
+            jengaClone.mass = 1;
+
+            world.addMesh(jengaClone);
+
+        }
+
+    };
+
+    for( var i = 0; i < jengaHeight; i++) {
+
+        loadJengaRow(i);
+
+    }
+
+
+}
+
+
+function saveScene() {
+
+    var postData = {
+        url: "jenga/jenga.scene",
+        json: world.sceneExportJSON()
+    };
+
+    THREE.AJAX.post("../savescene.php", "scene", postData, function(text) {
+
+        alert(text);
+
+    });
+
+}
+
+
+
+</script>
+
+
+</body>
+
+</html

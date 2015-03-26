@@ -1,0 +1,30 @@
+{
+    "name": "threesharp",
+    "version": "0.6.0",
+    "description": "Multi Compiler for node.js",
+
+    "author": "Chuck Fairy <charlieabeling@gmail.com>",
+    "contributors": [{
+        "name": "Chuck Fairy",
+        "email": "charlieabeling@gmail.com"
+    }],
+
+
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/gamethree/compiler"
+    },
+
+    "keywords": [
+        "javascript"
+    ],
+
+    "dependencies": {
+        "minify": "*",
+        "watch": "*"
+    },
+
+
+    "license": "GPL"
+
+}

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="UTF-8">
+
+<script src="../../../../build/gamethree.min.js"></script>
+
+</head>
+
+<body>
+
+<script>
+
+var world = new THREE.World();
+
+window.onload = function() {
+
+    initBauhausScene();
+
+    setTimeout(function() {
+        saveScene();
+    }, 6000);
+
+}
+
+function initBauhausScene() {
+
+    var loadDir = "";
+
+    var lightMaterial = new THREE.MeshPhongMaterial({
+        emissive: 0x000000, color: 0xFAA7F9, specular: 0xffffff,
+        shading: THREE.FlatShading
+    });
+
+    var darkMaterial = new THREE.MeshPhongMaterial({
+        emissive: 0x000000, color: 0x7D7D7D, specular: 0xffffff
+    });
+
+
+    var startHeight = 100;
+    var scaleSize = 12;
+
+    function addPiece(object3d) {
+
+        object3d.geometry.center();
+        world.addMesh(object3d);
+
+    };
+
+
+    //Loading special piece
+    var loadSpecialPiece = function(pieceArr) {
+
+        var name = pieceArr[0];
+        var positionX = pieceArr[1];
+        var pieceGeometry;
+        var darkPositionX;
+
+        world.universalLoad( (loadDir + name + ".obj"), function(object) {
+
+            pieceGeometry = object.children[0];
+
+            //King and queen fix
+            if( name === "king" ) {
+                darkPositionX = -16;
+            } else if( name === "queen" ) {
+                darkPositionX = 22.5;
+            }
+
+            addSpecialPiece(pieceGeometry, positionX, darkPositionX);
+
+            //Check if 2 pieces
+            if(pieceArr[2]) {
+                pieceGeometry.name = pieceGeometry.name + "x";
+                addSpecialPiece(pieceGeometry, pieceArr[2]);
+            }
+
+        });
+
+    };
+
+    //Adding special piece to world and physics world
+    var addSpecialPiece = function(object, positionX, darkPositionX) {
+
+        var geo = new THREE.Geometry().fromBufferGeometry(object.clone().geometry);
+        var piece = new THREE.Mesh(geo, lightMaterial);
+        piece.scale.multiplyScalar(scaleSize);
+        piece.material = lightMaterial;
+        piece.position.set(positionX, startHeight, 140);
+        piece.name = object.name + "_1";
+        piece.castShadow = true;
+        piece.receiveShadow = true;
+
+        var darkObject = piece.clone();
+        darkObject.name = object.name + "_2";
+        darkObject.material = darkMaterial;
+        darkObject.position.z = -(piece.position.z);
+        darkObject.position.x = darkPositionX || piece.position.x;
+
+        addPiece(piece);
+        addPiece(darkObject);
+
+    };
+
+    //load pawns
+    world.universalLoad(loadDir + "pawn.obj", function(object) {
+
+        var pawngeo = new THREE.Geometry().fromBufferGeometry(object.children[0].geometry);
+        var pawn = new THREE.Mesh(pawngeo, lightMaterial);
+        pawn.position.set(138, startHeight, 102);
+
+        pawn.geometry.computeVertexNormals();
+        pawn.scale.multiplyScalar(scaleSize);
+        pawn.material = lightMaterial;
+        pawn.castShadow = true;
+        pawn.receiveShadow = true;
+
+        for( var i = 0; i < 8; i++) {
+
+            var pawnClone = pawn.clone();
+            pawnClone.position.x = (pawn.position.x - (i * 38.5));
+            pawnClone.name = "pawn_" + i;
+
+            var darkPawn = pawnClone.clone();
+            darkPawn.material = darkMaterial;
+            darkPawn.position.z = -pawn.position.z;
+            pawnClone.name = "pawn_" + ( i + 8 );
+
+            addPiece(pawnClone);
+            addPiece(darkPawn);
+
+        }
+
+    });
+
+    //Load special pieces with light starting x coord
+    var specialPieces = [
+
+        ["tower", 138, -131.5],
+        ["bishop", 99, -93],
+        ["knight", 61, -54.4],
+        ["king", 22.5],
+        ["queen", -16]
+
+    ];
+
+    var piecesLength = specialPieces.length;
+
+    //Loop through each piece
+    for( var i = 0; i < piecesLength; i++) {
+
+        var pieceArr = specialPieces[i];
+        loadSpecialPiece(pieceArr);
+
+    }
+
+}
+
+
+function saveScene() {
+
+    var postData = {
+        url: "Bauhaus/bauhaus.scene",
+        json: world.sceneExportJSON()
+    };
+
+    THREE.AJAX.post("../savescene.php", "scene", postData, function(text) {
+
+        alert(text);
+
+    });
+
+}
+
+
+
+</script>
+
+
+</body>
+
+</html>

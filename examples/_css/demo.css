@@ -1,0 +1,126 @@
+html {
+    font-size: 16px;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+canvas {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+}
+
+h1, h2, h3, h4, p, span, a {
+    font-family: helvetica;
+    font-weight: 100;
+}
+
+a {
+    text-decoration: none;
+    cursor: pointer;
+}
+
+#webGL {
+    position: absolute;
+    top:0;
+    left:0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+#infoBox {
+    color: rgb(255,255,255);
+    text-align: left;
+    bottom: 4em;
+    left: 10px;
+    width: 90%;
+    position: absolute;
+    z-index: 3;
+}
+
+#infoBox h2 {
+    font-size: 1.2em;
+    font-weight: 100;
+    margin: 0;
+    text-shadow: 2px 2px 0 rgb(0,0,0);
+}
+
+#infoBox h2 > a {
+    color: rgb(10,100,200);
+}
+
+#gui {
+    z-index: 10;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+
+.controls {
+    z-index: 11;
+    position: absolute;
+    width: 100%;
+    top: 0;
+    left: 0;
+    padding-top: 10px;
+    /*display: none;*/
+}
+
+.controls > div {
+    position: relative;
+    margin: 0 auto;
+    background: rgba(0,0,0,.75);
+    padding: 5px;
+    width: 95%;
+    max-width: 40em;
+    border: 2px solid rgb(30,30,30);
+}
+
+.controls > div > h2 {
+    font-size: 2em;
+    margin: 10px 0 20px 0;
+    padding: 5px;
+    color: rgb(255,255,255);
+}
+
+.controlsMap {
+    background: rgb(220,220,220);
+}
+
+.controlsMap > div {
+    padding-left: 8em;
+    position: relative;
+    border-bottom: 1px solid rgb(30,30,30);
+}
+
+.controlsMap > div > span {
+    position: absolute;
+    top: 8px;
+    left: 5px;
+    font-size: 1em;
+}
+
+.controlsMap > div > p {
+    padding: 5px;
+    margin: 0;
+    font-size: 1.2em;
+    background: rgb(255,255,255);
+}
+
+.controlsClose {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: rgb(220,220,220);
+    padding: 5px;
+    color: rgb(50,50,255);
+}

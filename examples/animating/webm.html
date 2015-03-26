@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>G3 | Example : WebM</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+<link rel="stylesheet" href="../_css/demo.css">
+
+<script src="../../build/gamethree.min.js"></script>
+</head>
+
+<body>
+
+<!--Webgl wrapper-->
+<div id="webGL"></div>
+
+<!--dat gui-->
+<div id="gui"></div>
+
+<!--Info box for examples-->
+<div id="infoBox">
+    <h2>WebM creation Game Three</h2>
+</div>
+
+<!--Main js-->
+<script src="../_js/lib/dat.gui.min.js"></script>
+<script src="../_js/guis/GUI.js"></script>
+<script>
+
+//3d
+
+var world, renderer, camera, controls;
+
+
+//Models
+
+var ground, directionallight, sky;
+
+var carousel, carouselBody, carouselBottom, keyframe;
+
+var trashCan, fence, bench;
+
+//Video options
+var VideoOpts = Object.create(G3.GUI);
+
+VideoOpts.appendToElement("gui");
+
+//4 seconds (in miliseconds)
+VideoOpts.duration = 4000;
+
+//speed in frames per second
+VideoOpts.speed = 60;
+
+//Quality of frames
+VideoOpts.quality = 100;
+
+//create and compile video
+//VideoOpts.CreateVideo = createVideo;
+
+//Play video or http served default compile
+//VideoOpts.Play = playVideo;
+
+
+//Materials
+
+var greyLambert = new THREE.MeshLambertMaterial({color: 0xFFFFFF}),
+    grassTexture = THREE.ImageUtils.loadTexture( '../_assets/textures/checkerboard.jpg' ),
+    grassBump = THREE.ImageUtils.loadTexture("../_assets/bumpmaps/grass1.jpg");
+
+grassTexture.wrapS = grassTexture.wrapT = THREE.RepeatWrapping;
+grassTexture.repeat.set(20, 20);
+grassTexture.anisotropy = 4;
+
+//window load
+window.onload = function() {
+    init();
+    initCarnival();
+    initWebM();
+};
+
+
+//Create world and
+function init() {
+
+    //World
+    world = new G3.World();
+    world.init("webGL", {renderType: "webgl"});
+    world.useShadows(true);
+
+    //Camera
+    camera = world.getCamera();
+    camera.position.set(-25, 3.7, 45);
+    camera.lookAt(new THREE.Vector3(30, 3.7, 0))
+    //controls = new G3.OrbitControls(camera);
+
+    renderer = world.getRenderer();
+
+    //Create a floor
+    var planegeo = new THREE.PlaneBufferGeometry(430, 430, 64);
+    var plane = new THREE.Mesh(planegeo, new THREE.MeshLambertMaterial({
+        map: grassTexture
+    }));
+
+    plane.material.color.setHex(0xffffff);
+    plane.rotation.x = -(Math.PI / 2);
+    plane.receiveShadow = true;
+
+    world.addMesh(plane);
+
+
+    //Create light
+    spotLight = new THREE.SpotLight(0xfffff0, 1.5, 2000, 400);
+    spotLight.position.set(150, 90, 25);
+
+    spotLight.castShadow = true;
+    spotLight.shadowBias = .0001;
+    spotLight.shadowCameraNear = 100;
+    spotLight.shadowCameraFar = 430;
+    spotLight.shadowCameraFov = 30;
+    spotLight.shadowMapHeight = 4096; //2048
+    spotLight.shadowMapWidth = 4096;
+    spotLight.shadowDarkness = .8;
+    //spotLight.shadowCameraVisible = true;
+
+    world.addLight(spotLight);
+
+    var otherLight = new THREE.DirectionalLight(0xfffff0, .5, 20, 400);
+    otherLight.position.set(60, 20, -10);
+
+    world.addLight(otherLight);
+
+};
+
+
+//Load carnival
+function initCarnival() {
+
+    //Load objects
+    var loadDae = function(object) {
+
+        var scene = object.scene.children[0];
+        scene.rotation.x = -(Math.PI / 2);
+        scene.traverse(function(child) {
+            if(child instanceof THREE.Mesh) {
+                child.castShadow = true;
+                child.receiveShadow = true;
+            }
+        });
+
+        return scene;
+    };
+
+    //Load carousel top
+
+    world.universalLoad("../_models/carnival/carousel.dae", function(object) {
+
+        var scene = loadDae(object);
+        scene.position.set(0, 19.8, 1.5);
+        setUpCarousel(scene);
+        world.addMesh(scene);
+    });
+
+    //load carousel bottom
+
+    world.universalLoad("../_models/carnival/carousel_floor.dae", function(object) {
+
+        var scene = loadDae(object);
+        scene.position.y = 1.5;
+        world.addMesh(scene);
+
+    });
+
+
+    //Load fence object
+
+    world.universalLoad("../_models/carnival/fence.obj", function(object) {
+
+        var mesh = object.children[0];
+        mesh.position.x = 10;
+        mesh.geometry.computeVertexNormals();
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        world.addMesh(mesh);
+
+    });
+
+    //Load bench
+    world.universalLoad("../_models/carnival/bench.dae", function(object) {
+
+        var scene = loadDae(object);
+        world.addMesh(scene);
+
+    });
+
+    //Load bench
+    world.universalLoad("../_models/carnival/balloons.dae", function(object) {
+
+        var scene = loadDae(object);
+        world.addMesh(scene);
+
+    });
+
+    //Load bench
+
+    world.universalLoad("../_models/carnival/trash.dae", function(object) {
+
+        var scene = loadDae(object);
+        world.addMesh(scene);
+
+    });
+
+    world.LaunchWorld();
+
+}
+
+
+//Setup carousel animation
+
+function setUpCarousel(object) {
+
+    carousel = object;
+
+    keyframe = new G3.KeyFrame({
+        duration: 3000,
+
+        start: {r: 0},
+        end: {r: -(Math.PI * 2)}
+    });
+
+    keyframe.on("update", function(eventData) {
+        var value = eventData.value;
+        object.rotation.z = value.r;
+    });
+
+    keyframe.on("end", function() { keyframe.start(); });
+
+    world.on("before-render", function(eventData) {
+        var delta = (eventData.delta - 0) * 100;
+        keyframe.update(delta);
+    });
+
+    //world.render();
+}
+
+function initWebM() {
+
+    var exporter = new THREE.WebMExporter({
+
+        //Render options
+
+        renderer: world.getRenderer(),
+        scene: world.getScene(),
+        camera: world.getCamera(),
+
+        //video options
+
+        speed: VideoOpts.speed,
+        quality: VideoOpts.quality
+
+    });
+
+
+
+}
+
+
+</script>

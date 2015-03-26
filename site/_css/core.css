@@ -1,0 +1,317 @@
+html {
+    font-size: 16px;
+    background: rgb(220,220,220);
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    overflow-x: hidden;
+}
+
+h1, h2, h3, h4, p, a, button {
+    font-family: helvetica;
+    font-weight: 100;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+}
+
+/*NAVIGATOR*/
+#navigator {
+    width: 15em;
+    padding: 0;
+    box-shadow: 10px 0 0 0 rgb(10,120,190);
+    position: absolute;
+    display: block;
+    top: 0;
+    height: 100%;
+    z-index: 5;
+
+    background: rgb(200,200,200);
+    background: -webkit-linear-gradient(left,
+    rgb(200,200,200) 0%, rgb(255,255,255) 100%
+    );
+
+    color: rgb(0,0,0);
+
+    -webkit-transition: all .7s ease-in;
+    -moz-transition: all .7s ease-in;
+    -ms-transition: all .7s ease-in;
+    transition: all .7s ease-in;
+}
+
+.navigatorOn {
+    left: 0;
+}
+
+.navigatorOff {
+    left: -15.4em;
+}
+
+#navigatorbutton {
+    font-size: 1em;
+    background: rgb(10, 120, 190);
+    padding: 10px;
+    color: rgb(255,255,255);
+    text-shadow: 2px 2px 0 rgb(0,0,0);
+    cursor: pointer;
+    position: absolute;
+    right: -40px;
+    top: 2.6em;
+    z-index: 5;
+}
+
+#navigatorWrap {
+    padding: 0 0 0 10px;
+    overflow-y: auto;
+    height: 100%;
+}
+
+#navigatorWrap > h1 {
+    font-size: 2em;
+    background: rgb(0,0,0);
+    color: rgb(255,255,255);
+    padding: 5px;
+}
+
+#navigatorWrap > h2 {
+    font-size: 1.4em;
+    margin: 5px 0 0 0;
+    padding: 5px;
+    cursor: pointer;
+    position: relative;
+    border-bottom: 4px solid rgb(0,0,0);
+}
+
+#navigatorWrap > h2:hover {
+    color: rgb(10, 120, 190);
+}
+
+#navigatorWrap > h2:after {
+    display: block;
+    position: absolute;
+    right: 5px;
+    top: 7px;
+    z-index: 2;
+    width: 20px;
+    height: 20px;
+    content: "";
+    background: rgb(30,30,30);
+}
+
+#navigatorWrap > span {
+    display: block;
+    background: rgb(200, 200, 255);
+    padding: 5px;
+    border-left: 4px solid rgb(0,0,0);
+}
+
+#navigatorWrap > span > a {
+    font-size: 1.2em;
+    display: block;
+    padding: 5px;
+    color: rgb(60,60,60);
+}
+
+#navigatorWrap > span > a:hover, #navigatorWrap .selected {
+    color: rgb(255,255,255);
+    border-left: 4px solid rgb(120,120,120);
+    background: rgb(60,60,60);
+    margin: 1px 0;
+    transition: all .2s ease-in;
+}
+
+#navigatorWrap hr {
+    margin: 20px 0;
+}
+
+
+/*FRONT PAGE*/
+#pageWrap {
+    height: 100%;
+    overflow-y: auto;
+    background: url("../_assets/diamond.png");
+}
+
+#header {
+    height: 20em;
+    max-height: 100%;
+    position: relative;
+    /*background: rgb(0,0,0);*/
+}
+
+#header canvas {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    z-index: 1;
+}
+
+#header > h1 {
+    margin: 0;
+    padding: 1.5em 0 0 0;
+    font-size: 5em;
+    color: rgb(255,255,255);
+    text-align: center;
+    text-shadow: 5px 5px 0 rgb(0,0,0);
+}
+
+
+#aboutContent {
+    width: 93%;
+    max-width: 60em;
+    padding: 15px 7px 7px 7px;
+    margin: 10px auto;
+    position: relative;
+    z-index: 2;
+    top: -4.8em;
+    background: rgb(255,255,255);
+    box-shadow: 0 0 30px -5px rgb(0,0,0);
+    min-height: 20em;
+}
+
+#aboutContent > h2 {
+    font-size: 3em;
+    margin: 0 0 10px 0;
+    padding: 5px;
+    border-bottom: 1px solid rgb(30,30,30);
+    width: 90%;
+}
+
+#aboutContent > p {
+    font-size: 1.4em;
+    width: 90%;
+    margin: 1.5em auto;
+}
+
+#aboutContent > p > a {
+    color: rgb(10, 120, 190);
+}
+
+/*About Products*/
+.productDiv {
+    padding: 10px 17.4em 10px 10px;
+    position: relative;
+    min-height: 22em;
+    margin-bottom: 1em;
+    border-bottom: 1px solid rgb(0,0,0);
+}
+
+.productDiv:nth-of-type(2n) {
+    padding: 10px 10px 10px 17.4em;
+}
+
+.productHeader {
+    display: block;
+    width: 15em;
+    padding: 10px;
+    position: absolute;
+    top:0;
+    right: 10px;
+    box-shadow: inset 0 0 25px 0 rgb(60,60,60);
+    border-radius: 10px;
+}
+
+.productHeaderT {
+    left: 10px;
+}
+
+.productHeader > h3 {
+    font-size: 2em;
+    text-align: center;
+    margin: 0;
+    padding: 5px;
+}
+
+.productHeader > img {
+    width: 70%;
+    margin: 0 auto;
+    padding: 8px;
+    display: block;
+    border-radius: 50%;
+}
+
+.productHeader > a {
+    font-size: 1.2em;
+    display: block;
+    background: rgb(10, 120, 190);
+    color: rgb(255,255,255);
+    padding: 5px;
+    margin: 5px 0;
+}
+
+.productHeader > a:hover {
+    background: rgb(10, 200, 255);
+}
+
+.productInfo {
+    padding: 10px;
+    font-size: 1.4em;
+    border-left: 2px solid rgb(0,0,0);
+}
+
+.productInfo > p {
+    color: rgb(60,60,60);
+}
+
+.productInfo > p > a {
+    color: rgb(10, 120, 190);
+}
+
+/*FOOTER*/
+#footer {
+    height: 14em;
+    padding-left: 8em;
+    background: rgb(60,60,60);
+    color: rgb(255,255,255);
+    position: relative;
+}
+
+#footerLinks {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 8em;
+    height: 100%;
+    background: rgb(0,0,0);
+}
+
+#footerLinks > a {
+    display: block;
+    clear: both;
+    margin: 0;
+    padding: 12px;
+    font-size: 1.2em;
+}
+
+
+@media (max-width: 700px) {
+    #navigator {
+        width: 98.5%;
+    }
+
+    .navigatorOff {
+        left: -99.5%;
+    }
+
+    .navigatorOn > #navigatorbutton {
+        right: 0;
+    }
+
+    .productHeader {
+        width: 80%;
+        position: relative;
+        margin: 10px auto;
+    }
+
+    .productDiv, .productDiv:nth-of-type(2n) {
+        padding: 10px;
+    }
+}

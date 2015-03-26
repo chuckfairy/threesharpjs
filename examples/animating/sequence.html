@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>THREE | Example : Sequence</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+<link rel="stylesheet" href="../_css/demo.css">
+
+<script src="../../build/gamethree.min.js"></script>
+</head>
+
+<body>
+
+<!--Webgl wrapper-->
+<div id="webGL"></div>
+
+<!--Dat GUI-->
+<div id="gui"></div>
+
+<!--Info box for examples-->
+<div id="infoBox">
+    <h2>Animation sequence Game Three</h2>
+</div>
+
+<!--GUI code-->
+<script src="../_js/lib/dat.gui.min.js"></script>
+<script src="../_js/guis/GUI.js"></script>
+<script src="../_js/guis/Sequence.GUI.js"></script>
+
+
+<!--Main Js-->
+<script>
+
+//Scene Objecs
+var world, camera, skyBox;
+
+//Animation objects
+var sequence,
+    objectGeometry = new THREE.OctahedronGeometry(2, 2),
+
+    objectMaterial = new THREE.MeshLambertMaterial({
+        color: 0xFFFFFF, shading: THREE.FlatShading
+    }),
+
+    objectMesh = new THREE.Mesh(objectGeometry, objectMaterial);
+
+//Create controller for manipulating sequence
+var controller = new THREE.Sequence.GUI();
+controller.numberOfObjects = 400;
+controller.spacing = 1000;
+controller.explode = function() {initSequence();};
+controller.clear = function() {
+    sequence.clearKeyFrames();
+}
+
+controller.appendToElement("gui");
+controller.addToFolder("Sequence", "numberOfObjects", 1, 9000);
+controller.addToFolder("Sequence", "spacing", 10, 2000);
+controller.add("explode");
+
+//Create scene and sequence
+window.onload = function() {
+    init();
+    initSequence();
+};
+
+//Create THREE world
+function init() {
+
+    world = new THREE.World();
+    world.init("webGL", {renderType: "webgl"});
+
+    //Get and move camera default is at 0,0,0
+    camera = world.getCamera();
+    camera.far = 3000;
+    camera.updateProjectionMatrix();
+
+    //Create and add light
+    var light = new THREE.SpotLight(0xffffff);
+    light.position.set(50, 150, 50);
+    world.addLight(light);
+
+    var geometry = new THREE.SphereGeometry(1000, 10, 10);
+    var texture = THREE.ImageUtils.loadTexture( '../_assets/images/hubble.jpg' );
+    texture.magFilter = THREE.Linear;
+    texture.minFilter = THREE.LinearMipMapLinear;
+
+    //Create "space" skyBox
+    var uniforms = {
+        "tDiffuse": { type: 't', value: texture },
+        "opacity":  { type: "f", value: 1.0 }
+    };
+
+    var material = new THREE.ShaderMaterial( {
+        uniforms:       uniforms,
+        vertexShader:   THREE.CopyShader.vertexShader,
+        fragmentShader: THREE.CopyShader.fragmentShader
+    });
+
+    skyBox = new THREE.Mesh(geometry, material);
+    skyBox.scale.set(-1, 1, 1);
+    skyBox.renderDepth = 10.0;
+    world.addLight(skyBox);
+
+    //Launch world
+    world.LaunchWorld();
+
+}
+
+//Initialize sequence of random boxes flying
+function initSequence() {
+
+    //Create sequences for box
+    sequence = new THREE.Sequence({
+        name: "box movement",
+        timeframe: 10000,
+        fps: 60
+    });
+
+    var spacing = controller.spacing;
+    var spacingLow = spacing / 2;
+
+    //Create object keyframe for animating
+    function createObjectKeyFrame(i) {
+
+        //Create object mesh
+        var mesh = objectMesh.clone();
+        mesh.name = "object" + (i + 1);
+
+        //create random delay
+        var delay = Math.random() * 1000;
+
+        var startData = {
+            x: ((Math.random() * spacing) - spacingLow),
+            y: ((Math.random() * spacing) - spacingLow),
+            z: ((Math.random() * spacing) - spacingLow)
+        };
+
+        var endData = {
+            x: 0, y: 0, z: 0, qy: 0
+        }
+
+        mesh.position.set(endData.x, endData.y, endData.z);
+
+        //Create keyframe
+        var keyframe = new THREE.KeyFrame({
+
+            name: mesh.name,
+            timeframe: 10000,
+            start: endData,
+            end: startData,
+            delay: delay
+
+        });
+
+        keyframe.mesh = mesh;
+
+        //on update change mesh position
+        keyframe.on("update", function(eventData) {
+
+            //Current value of object
+            var position = eventData.value;
+
+            mesh = keyframe.mesh;
+            mesh.position.x = position.x;
+            mesh.position.y = position.y;
+            mesh.position.z = position.z;
+
+        });
+
+        sequence.addKeyFrame(keyframe);
+
+        world.addMesh(mesh);
+    };
+
+    //Create boxes on set value int
+    var num = controller.numberOfObjects
+    for(var i = 0; i < num; i++) {
+
+        //Create mesh objects
+        createObjectKeyFrame(i);
+
+    }
+
+    //update sequence before render
+    var timer;
+    setTimeout(function() {
+
+        world.on("before-render", function(eventData) {
+
+            //Update by time past
+            var delta = (eventData.delta * 200);
+            sequence.update(delta);
+
+            moveCamera();
+        });
+
+    }, 500);
+
+}
+
+
+//Circular movement around 0,0,0
+function moveCamera() {
+    timer = Date.now() * 0.0001;
+    camera.position.x = Math.cos(timer) * 70;
+    camera.position.y = (Math.sin(timer) * 20) - 10;
+    camera.position.z = Math.sin(timer) * 70;
+    camera.lookAt(new THREE.Vector3(0,0,0));
+}
+
+
+</script>
+
+</body>
+</html>

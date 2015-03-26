@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>World Basics</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+<link rel="stylesheet" href="../_css/demo.css">
+
+<script src="../../build/gamethree.min.js"></script>
+</head>
+
+<body>
+
+<!--Webgl wrapper-->
+<div id="webGL"></div>
+
+<div id="gui"></div>
+
+<!--Info box for examples-->
+<div id="infoBox">
+    <h2>WebM video export Game Three</h2>
+</div>
+
+<!--Main js-->
+<script src="../_js/lib/dat.gui.min.js"></script>
+<script src="../_js/guis/GUI.js"></script>
+
+<script>
+//Gamethree homescreen webgl
+//By Chuck
+
+var world, renderer, camera, textMesh;
+
+window.onload = function() {
+    init();
+    initHomeText();
+};
+
+var VideoOpts =  Object.create(G3.GUI);
+VideoOpts.appendToElement("gui");
+
+VideoOpts.timeframe = 2000;
+VideoOpts.speed = 60;
+VideoOpts.quality = 100;
+
+//Compile function
+VideoOpts.compile = WebMExport;
+
+//Video Controller
+VideoOpts.addToFolder("Video", "timeframe", 500, 6000);
+VideoOpts.addToFolder("Video", "speed", 1, 60);
+VideoOpts.addToFolder("Video", "quality", 1, 100);
+
+VideoOpts.add("compile");
+
+function init() {
+
+    //Create world make sure preserveDrawingBuffer is set true
+    //To save a Webgl dataUrl
+    //Not needed for canvas renderer
+    world = new G3.World();
+    world.init("webGL", {
+        renderType: "webgl",
+        preserveDrawingBuffer: true
+    });
+
+    world.setScreenSize("container");
+
+    //get renderer for webm exportation
+    renderer = world.getRenderer();
+
+    camera = world.getCamera();
+    camera.position.set(150, 11, 0);
+    camera.lookAt(new THREE.Vector3(0,0,0));
+    var controls = new G3.OrbitControls(camera, renderer.domElement);
+
+    var checkerboard = THREE.ImageUtils.loadTexture( '../_assets/textures/checkerboard.jpg' );
+    checkerboard.wrapS = checkerboard.wrapT = THREE.RepeatWrapping;
+    checkerboard.repeat.set(4, 4);
+    checkerboard.anisotropy = 1;
+
+
+    var planegeo = new THREE.PlaneBufferGeometry(400, 400, 5);
+    var plane = new THREE.Mesh(planegeo,  new THREE.MeshPhongMaterial({
+        color: 0xffffff, ambient: 0xffffff,
+        map: checkerboard
+    }));
+
+    plane.rotation.x = -(Math.PI / 2);
+    plane.receiveShadow = true;
+
+    //Create light
+    spotLight = new THREE.SpotLight(0xffffff, 1.9, 400, 400);
+    spotLight.position.set(200, 100, 0);
+
+    spotLight.castShadow = true;
+    spotLight.shadowBias = .0001;
+    spotLight.shadowCameraNear = 40;
+    spotLight.shadowCameraFar = 350;
+    spotLight.shadowCameraFov = 30;
+    spotLight.shadowMapHeight = 4096; //2048
+    spotLight.shadowMapWidth = 4096;
+    spotLight.shadowDarkness = .7;
+    //spotLight.shadowCameraVisible = true;
+
+
+
+    //Add to world
+    world.addMesh(plane);
+    world.addLight(spotLight);
+    //world.addLight(new THREE.AmbientLight(0xffffff));
+
+
+
+}
+
+function initHomeText() {
+
+    var normalMaterial = new THREE.MeshLambertMaterial({color: 0xFFFFFF, shading: THREE.FlatShading});
+
+    //Load text geometry
+    world.universalLoad("../_models/misc/gamethree_text.json", function(geometry) {
+
+        textMesh = new THREE.Mesh(geometry, normalMaterial);
+        textMesh.geometry.computeVertexNormals();
+        textMesh.scale.set(4,4,4);
+        textMesh.rotation.y = (Math.PI / 2);
+        textMesh.position.set(0, 0, 0);
+        textMesh.castShadow = true;
+        textMesh.receiveShadow = true;
+        textMesh.rotation.y = 1;
+
+        world.addMesh(textMesh);
+
+        world.on("before-render", function(eventData) {
+            textMesh.rotation.y -= eventData.delta / 10;
+        });
+
+    });
+
+
+    //Render loop
+    world.LaunchWorld();
+}
+
+//Webm export
+function WebMExport() {
+
+    var exporter = new THREE.WebMExporter({
+
+        //Render options
+
+        renderer: world.getRenderer(),
+        scene: world.getScene(),
+        camera: world.getCamera(),
+
+        //video options
+
+        speed: VideoOpts.speed,
+        quality: VideoOpts.quality
+
+    });
+
+    console.log(exporter);
+
+
+    var numberOfFrames = VideoOpts.timeframe / 1000 * exporter.duration;
+
+    for(var i = 0; i < numberOfFrames; i++) {
+        exporter.addRenderFrame();
+    }
+
+    var video = exporter.compile();
+
+    console.log(video);
+
+    
+}
+
+
+</script>
+
+</body>
+</html>

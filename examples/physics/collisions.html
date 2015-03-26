@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>World Basics</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link rel="stylesheet" href="../_css/demo.css">
+
+    <script src="../../build/gamethree.min.js"></script>
+</head>
+
+<body>
+
+<!--Webgl wrapper-->
+<div id="webGL"></div>
+
+<!--Info box for examples-->
+<div id="infoBox">
+    <h2>Physical collision simulation Game Three</h2>
+</div>
+
+<!--DAT GUI div-->
+<div id="gui"></div>
+
+<!--Main js-->
+<script src="../_js/lib/dat.gui.min.js"></script>
+<script src="../_js/guis/Physics.GUI.js"></script>
+<script>
+
+//Create world and setup
+var world = new THREE.World();
+world.init("webGL", {renderType: "webgl"});
+world.useShadows(true);
+
+//Get and move camera default is at 0,0,0
+var camera = world.getCamera();
+camera.position.set(430, 200, 0);
+
+var controls = new THREE.OrbitControls(camera);
+
+//Physics set using THREE.Physics object
+var physics = new THREE.Physics({
+    gravity: new THREE.Vector3(0, -9.8, 0)
+    //boundries: new THREE.Vector4(50, 50, -50, -50)
+});
+
+//Set Frames per second
+physics.fps = 40;
+
+//Set GUI see _js/guis/Physics.GUI.js
+var physicsGUI = new THREE.Physics.GUI(physics);
+physicsGUI.appendToElement("gui");
+
+//Create event handler for physics object add
+world.on("add-mesh", function(event) {
+
+    //Object set to newly created THREE.Object3D
+    var object = event.object;
+
+    //add object to physics world
+    physics.addObject(object);
+});
+
+//create geometries with built in colors
+var greyLambert = new THREE.MeshLambertMaterial({color: 0xffffff});
+var bluePhong = new THREE.MeshPhongMaterial({
+    ambient: 0x000000, color: 0x9EB5FF, specular: 0xffffff
+});
+
+//Create a floor
+var planegeo = new THREE.PlaneBufferGeometry(230, 230, 64);
+var plane = new THREE.Mesh(planegeo, greyLambert);
+plane.material.color.setHex(0xffffff);
+plane.rotation.x = -(Math.PI / 2);
+plane.receiveShadow = true;
+
+//Create main box mesh
+var boxgeo = new THREE.BoxGeometry(15,15,15);
+var boxMesh = new THREE.Mesh(boxgeo, bluePhong);
+boxMesh.castShadow = true;
+
+//Create another box for colliding
+var boxMesh2 = boxMesh.clone();
+
+//set physics for mass in kg
+boxMesh.mass = 1;
+boxMesh2.mass = 3;
+
+//Set box starting positions
+boxMesh.position.set(0, 40, 40);
+boxMesh2.position.set(0, 40, -40);
+
+//save starting quarternions
+var startQuat1 = boxMesh.quaternion.clone();
+var startQuat2 = boxMesh2.quaternion.clone();
+
+var startPosition1 = boxMesh.position.clone();
+var startPosition2 = boxMesh2.position.clone();
+
+//Create light
+var directionallight = new THREE.DirectionalLight(0xfffff0, .8, 20, 400);
+directionallight.position.set(60, 20, -10);
+directionallight.target = plane;
+
+directionallight.castShadow = true;
+directionallight.shadowBias = .0001;
+directionallight.shadowCameraNear = 5;
+directionallight.shadowCameraFar = 230;
+directionallight.shadowCameraFov = 80;
+directionallight.shadowMapHeight = 4096; //2048
+directionallight.shadowMapWidth = 4096;
+directionallight.shadowDarkness = .8;
+//directionallight.shadowCameraVisible = true;
+
+//Add box and light
+world.addMesh(plane);
+world.addMesh(boxMesh);
+world.addMesh(boxMesh2);
+world.addLight(directionallight);
+
+//Create event handler for render before
+world.on("before-render", function(event) {
+
+    //Get delta of seconds
+    var delta = event.delta;
+
+    //Update physics and change objects
+    physics.update(delta);
+
+});
+
+//Get cannon bodies for meshes
+var boxobj1 = physics.getObject(boxMesh.uuid);
+var boxbody1 = boxobj1.cannon;
+
+var boxobj2 = physics.getObject(boxMesh2.uuid);
+var boxbody2 = boxobj2.cannon;
+
+//create sample box falling
+var boxSetup = function() {
+    boxbody1.wakeUp();
+    boxbody2.wakeUp();
+
+    //Set starting positions
+    boxbody1.position.copy(startPosition1);
+    boxbody1.quaternion.copy(startQuat1);
+
+    boxbody2.position.copy(startPosition2);
+    boxbody2.quaternion.copy(startQuat2);
+};
+
+//Create sample box move with velocity
+var boxCollide = function() {
+
+    //Move and Rotate the object to get a cool fall
+    boxSetup();
+
+    //Apply a force after timeout
+    boxbody1.velocity.set(0, 10, -40);
+    boxbody1.angularVelocity.set(3, 2, 0);
+
+    boxbody2.velocity.set(0, 10, 40);
+    boxbody2.angularVelocity.set(0, 1, 4);
+};
+
+//Launch world
+world.LaunchWorld();
+
+//Add box fly scene
+physicsGUI.addScene("Boxes Fall", boxSetup);
+physicsGUI.addScene("Boxes Collide", boxCollide);
+boxCollide();
+
+
+</script>
+
+</body>
+</html>

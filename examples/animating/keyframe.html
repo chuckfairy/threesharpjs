@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>THREE | Example : KeyFrame</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+<link rel="stylesheet" href="../_css/demo.css">
+
+<script src="../../build/gamethree.min.js"></script>
+</head>
+
+<body>
+
+<!--Webgl wrapper-->
+<div id="webGL"></div>
+
+<!--dat gui-->
+<div id="gui"></div>
+
+<!--Info box for examples-->
+<div id="infoBox">
+    <h2>Animation KeyFrame Game Three</h2>
+</div>
+
+<!--GUI code-->
+<script src="../_js/lib/dat.gui.min.js"></script>
+<script src="../_js/guis/GUI.js"></script>
+<script src="../_js/guis/KeyFrame.GUI.js"></script>
+
+
+<!--Main js-->
+<script>
+//Create world and setup
+var world = new THREE.World();
+world.init("webGL", {renderType: "webgl"});
+
+//Get and move camera default is at 0,0,0
+var camera = world.getCamera();
+camera.position.set(50, 0, 0);
+camera.lookAt(new THREE.Vector3(0,0,0));
+
+//Create orbit controls
+var controls = new THREE.OrbitControls(camera, world.getRenderer().domElement);
+
+//create geometries with built in colors
+var greyLambert = THREE.Materials.get("greylambert");
+
+//Create sample box
+var boxgeo = new THREE.OctahedronGeometry(5, 3);
+var boxMesh = new THREE.Mesh(boxgeo, greyLambert);
+boxMesh.position.y = 2.5;
+
+var light = new THREE.SpotLight(0xffffff);
+light.position.set(50, 150, 50);
+
+//Movement keyframe of
+var keyframe = new THREE.KeyFrame({
+    name: "sample keyframe",
+    timeframe: 2000,
+    start: {
+        x: -50,
+        y: -10,
+        qy: 0
+    },
+
+    end: {
+        x: 35,
+        y: 0,
+        qy: Math.PI * 2
+    }
+});
+
+//on update change mesh position
+keyframe.on("update", function(eventData) {
+
+    //Current value of object
+    var position = eventData.value;
+
+    boxMesh.position.x = position.x;
+    boxMesh.position.y = position.y;
+    boxMesh.rotation.z = -position.qy;
+});
+
+//Set repeater
+keyframe.on("end", function() {
+    keyframe.inverse();
+    keyframe.start();
+});
+
+//Create keyframe GUI
+var keyframeGUI = new THREE.KeyFrame.GUI(keyframe);
+keyframeGUI.appendToElement("gui");
+
+//Set updater for TWEEN
+world.on("before-render", function(eventData) {
+
+    //update from timed delta
+    var delta = eventData.delta * 1000;
+    keyframe.update(delta);
+
+});
+
+//Add box and light
+world.addMesh(boxMesh);
+world.addLight(light);
+
+//Launch world
+world.LaunchWorld();
+
+</script>
+
+</body>
+</html>

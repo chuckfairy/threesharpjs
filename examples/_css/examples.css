@@ -1,0 +1,100 @@
+/*Core example css add-on to the gamethree site core.css*/
+
+#g3Wrap {
+    padding-left: 15.6em;
+    position: relative;
+    height: 100%;
+
+    -webkit-transition: all .7s ease-in;
+    -moz-transition: all .7s ease-in;
+    -ms-transition: all .7s ease-in;
+    transition: all .7s ease-in;
+}
+
+#webglTools {
+    position: absolute;
+    bottom: 0;
+    height: 3em;
+    width: 100%;
+    background: rgba(0,0,0,.85);
+}
+
+#webglTools > a {
+    background: rgb(60,60,60);
+    color: rgb(255,255,255);
+    padding: 5px;
+    position: relative;
+    top: 13px;
+    left: 10px;
+    font-size: 1em;
+    /*z-index:5;*/
+}
+
+#webglViewer {
+    height: 100%;
+    background: rgb(200,200,200);
+    position: relative;
+}
+
+#webglViewer > iframe {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    display: block;
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+
+#webglPageToggler {
+    position: absolute;
+    right: 5px;
+    top: 7px;
+    height: 1em;
+    background: rgb(60,60,60);
+    padding: 5px 5px 10px 0;
+}
+
+#webglPageToggler > span {
+    display: inline-block;
+    position: relative;
+    top: -3px;
+    border-left: 1px solid rgb(0,0,0);
+    height: 110%;
+    margin-left: 10px;
+}
+
+#webglPageToggler > p {
+    margin: 0;
+    font-size: 1em;
+    display: inline-block;
+    color: rgb(10,120,190);
+    position: relative;
+    top: -5px;
+    padding: 0 5px;
+}
+
+#webglPageToggler > a {
+    /*background: rgb(200,200,200);*/
+    display: inline-block;
+    position: relative;
+    height: 0;
+    width: 0;
+    border-style: solid;
+    border-color:  transparent rgb(200,200,200) transparent transparent;
+    border-width: 10px 15px 10px 15px;
+}
+
+#webglPageToggler > a:last-of-type {
+    left: 10px;
+    border-color:  transparent transparent transparent rgb(200,200,200) ;
+    border-width: 10px 15px 10px 15px;
+}
+
+
+
+@media (max-width: 700px) {
+    #webglPageToggler > p {
+        display: none;
+    }
+}
