@@ -1,0 +1,10 @@
+.DS_Store
+node_modules/
+app/
+cache/
+starterpack/
+design/
+examples/_models/carnival/
+examples/_models/fighter/
+examples/_models/skatepark/
+examples/_models/blockster/
