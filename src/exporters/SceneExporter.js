@@ -429,6 +429,37 @@ THREE.SceneExporter.prototype = {
 
 				];
 
+			} else if ( g instanceof THREE.CylinderGeometry ) {
+
+				var params = {
+
+					topRad: (g.parameters.radiusTop || 20),
+					botRad: (g.parameters.radiusBottom || 20),
+					height: (g.parameters.height || 100),
+					radSegs: (g.parameters.radialSegments || 8),
+					heightSegs: (g.parameters.heightSegments || 1),
+					openEnded: ((g.parameters.openEnded) ? "true" : "false"),
+					thetaStart: (g.parameters.thetaStart || 0),
+					thetaLength: (g.parameters.thetaLength || (2 * Math.PI) )
+
+				};
+
+				var output = [
+
+				'\t' + LabelString( getGeometryName( g ) ) + ': {',
+				'	"type" 	      : "cylinder",',
+				'	"topRad"	  : ' + params.topRad + ',',
+				'	"botRad"	  : ' + params.botRad + ',',
+				' 	"height" 	  : ' + params.height + ',',
+				'	"radSegs"     : ' + params.radSegs + ',',
+				'	"heightSegs"  : ' + params.heightSegs + ',',
+				'	"openEnded"   : ' + params.openEnded + ',',
+				'	"thetaStart"  : ' + params.thetaStart + ',',
+				' 	"thetaLength" : ' + params.thetaLength,
+				'}'
+
+				];
+
 			} else if ( g instanceof THREE.Geometry ) {
 
 				if ( g.sourceType === "ascii" || g.sourceType === "ctm" || g.sourceType === "stl" || g.sourceType === "vtk") {

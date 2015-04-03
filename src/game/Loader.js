@@ -12,20 +12,19 @@ THREE.LoaderHelper = function() {
         dds: THREE.DDSLoader,
         js: THREE.JSONLoader,
         obj: THREE.OBJLoader,
+        object: THREE.ObjectLoader,
         pdb: THREE.PDBLoader,
         ply: THREE.PLYLoader,
-        scene: THREE.SceneLoader,
         svg: THREE.SVGLoader,
         utf: THREE.UTF8Loader,
         vrml: THREE.VRMLLoader,
-        vtk: THREE.VTKLoader,
-
-
+        vtk: THREE.VTKLoader
     };
 
     //Fixes
     LOADERS.dae = LOADERS.collada,
     LOADERS.json = LOADERS.js
+    LOADERS.scene = LOADERS.object;
 
 
     /********************Game Loader API********************/

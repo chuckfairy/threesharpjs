@@ -396,7 +396,7 @@ THREE.World = function() {
 
     this.sceneExportJSON = function() {
 
-        return EXPORTER.export("scene", SCENE);
+        return JSON.stringify(SCENE.toJSON());
 
     };
 

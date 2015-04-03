@@ -887,23 +887,6 @@ THREE.SceneLoader.prototype = {
 
 			}
 
-			//Load geometry from exporter
-			//takes verticies, faces, normals, and *uvs
-			else if ( geoJSON.type === "Geometry" || geoJSON.type === "BufferGeometry" ) {
-
-				var geometry;
-
-				if( geoJSON.type === "Geometry" ) {
-					geometry = createGeometryFromObject( geoJSON );
-				} else {
-					geometry = createBufferGeometryFromObject( geoJSON );
-				}
-
-				geometry.name = geoID;
-				result.geometries[geoID] = geometry;
-
-			}
-
 		}
 
 		// count how many hierarchies will be loaded asynchronously
@@ -952,7 +935,7 @@ THREE.SceneLoader.prototype = {
 
 			} else if ( geoJSON.type === "cylinder" ) {
 
-				geometry = new THREE.CylinderGeometry( geoJSON.topRad, geoJSON.botRad, geoJSON.height, geoJSON.radSegs, geoJSON.heightSegs );
+				geometry = new THREE.CylinderGeometry( geoJSON.topRad, geoJSON.botRad, geoJSON.height, geoJSON.radSegs, geoJSON.heightSegs, geoJSON.openEnded, geoJSON.thetaStart, geoJSON.thetaLength  );
 				geometry.name = geoID;
 				result.geometries[ geoID ] = geometry;
 
@@ -967,6 +950,17 @@ THREE.SceneLoader.prototype = {
 				geometry = new THREE.IcosahedronGeometry( geoJSON.radius, geoJSON.subdivisions );
 				geometry.name = geoID;
 				result.geometries[ geoID ] = geometry;
+
+			} else if ( geoJSON.type === "Geometry" || geoJSON.type === "BufferGeometry" ) {
+
+				if( geoJSON.type === "Geometry" ) {
+					geometry = createGeometryFromObject( geoJSON );
+				} else {
+					geometry = createBufferGeometryFromObject( geoJSON );
+				}
+
+				geometry.name = geoID;
+				result.geometries[geoID] = geometry;
 
 			} else if ( geoJSON.type in this.geometryHandlers ) {
 
