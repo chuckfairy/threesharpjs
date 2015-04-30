@@ -154,8 +154,12 @@ function initVehicle() {
     vehicleChassis.position.y += 20;
     vehicleChassis.parent = world.getScene();
 
-    var wheelGeo = new THREE.SphereGeometry(7, 11, 11); //new THREE.BoxGeometry(8,8,8);//
+    //var wheelGeo = new THREE.SphereGeometry(7, 11, 11);
+    var wheelGeo = new THREE.BoxGeometry(10,10,10);
+    //var wheelGeo = new THREE.CylinderGeometry(5,5,10);
+    //wheelGeo.rotation.x = Math.PI / 2;
     var vehicleWheel = new THREE.Mesh(wheelGeo, blackLambert);
+    //vehicleWheel.quaternion.setFromAxisAngle( new THREE.Vector3( 0, 1, 0 ), Math.PI / 2 );
     //vehicleWheel.material.shading = THREE.SmoothShading;
     vehicleWheel.receiveShadow = vehicleWheel.castShadow = true;
 
@@ -171,22 +175,22 @@ function initVehicle() {
         wheelPositions: [
 
             {
-                position: new THREE.Vector3(15, -10, 10),
+                position: new THREE.Vector3(17, -10, 10),
                 axis: new CANNON.Vec3(1, 0, 0)
             },
 
             {
-                position: new THREE.Vector3(-15, -10, 10),
+                position: new THREE.Vector3(-17, -10, 10),
                 axis: new THREE.Vector3(1, 0, 0),
             },
 
             {
-                position: new THREE.Vector3(15, -10, -10),
+                position: new THREE.Vector3(17, -10, -10),
                 axis: new CANNON.Vec3(1, 0, 0)
             },
 
             {
-                position: new THREE.Vector3(-15, -10, -10),
+                position: new THREE.Vector3(-17, -10, -10),
                 axis: new CANNON.Vec3(1, 0, 0)
             }
 

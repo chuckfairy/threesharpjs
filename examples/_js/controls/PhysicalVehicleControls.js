@@ -8,7 +8,7 @@ THREE.PhysicalVehicleControls = function( physicalVehicle, options ) {
     this.vehicle = physicalVehicle;
 
     // car data manual parameters
-    this.maxForce = options.speed || 1000;
+    this.maxForce = options.speed || 700;
     this.maxAcceleration = options.acceleration || 5;
     this.maxWheelRotation = options.steering || 5;
 
@@ -20,7 +20,7 @@ THREE.PhysicalVehicleControls = function( physicalVehicle, options ) {
     //array of wheel drive [1, 0] which wheels to move
     this.wheelDrive = options.wheelDrive || [ 0, 1, 2, 3 ];
 
-    this.steeringDrive = options.steeringDrive || [ 0, 1, 2, 3];
+    this.steeringDrive = options.steeringDrive || [ 0, 1];
 
     //max wheel rotation
     this.wheelRotation = 0;
@@ -32,19 +32,19 @@ THREE.PhysicalVehicleControls = function( physicalVehicle, options ) {
         switch( event.charName ) {
 
             case "up": case "w":
-                scope.vehicle.setWheelForce( scope.maxForce );//, this.wheelDrive );
+                scope.vehicle.setWheelForce( scope.maxForce, scope.wheelDrive );
                 break;
 
             case "down": case "s":
-                scope.vehicle.setWheelForce( -scope.maxForce, this.wheelDrive );
+                scope.vehicle.setWheelForce( -scope.maxForce, scope.wheelDrive );
                 break;
 
             case "left": case "a":
-                scope.vehicle.setSteeringValue( scope.steeringForce, this.steeringDrive );
+                scope.vehicle.setSteeringValue( scope.steeringForce, scope.steeringDrive );
                 break;
 
             case "right" : case"d":
-                scope.vehicle.setSteeringValue( -scope.steeringForce, this.steeringDrive );
+                scope.vehicle.setSteeringValue( -scope.steeringForce, scope.steeringDrive );
                 break;
 
         }
@@ -57,11 +57,11 @@ THREE.PhysicalVehicleControls = function( physicalVehicle, options ) {
         switch( event.charName ) {
 
             case "up": case "w": case "down": case "s":
-                scope.vehicle.setWheelForce( 0, this.wheelDrive );
+                scope.vehicle.setWheelForce( 0, scope.wheelDrive );
                 break;
 
             case "left": case "a": case "right" : case"d":
-                scope.vehicle.setSteeringValue( 0, this.steeringDrive );
+                scope.vehicle.setSteeringValue( 0, scope.steeringDrive );
                 break;
 
         }

@@ -7,7 +7,7 @@ THREE.PhysicalVehicle = function( chassisBody, options ) {
     chassisBody.mass = options.vehicleMass || chassisBody.mass || 150;
 
     //Create PhysicalBody
-    this.vehiclePhysicalBody = new THREE.PhysicalBody( chassisBody );
+    this.vehiclePhysicalBody = new THREE.PhysicalBody( chassisBody, {type: "box"} );
     this.vehicleBody = this.vehiclePhysicalBody.getBody();
     this.vehicleBody.position.copy(chassisBody.position);
     this.vehicleBody.quaternion.copy(chassisBody.quaternion);
@@ -32,13 +32,13 @@ THREE.PhysicalVehicle = function( chassisBody, options ) {
     this.wheelMesh = options.wheelMesh ||
         new THREE.Mesh( new THREE.Cylinder(), new THREE.MeshLambertMaterial() );
 
-    this.wheelPhysicalBody = new THREE.PhysicalBody( this.wheelMesh, {type: "cylinder"} );
+    this.wheelPhysicalBody = new THREE.PhysicalBody( this.wheelMesh );
 
     this.wheelShape = this.wheelPhysicalBody.getShape();
 
     this.wheelMaterial = options.wheelMaterial || new CANNON.Material("wheelMaterial");
 
-    this.wheelSize = this.wheelMesh.geometry.boundingBox.size();
+    //this.wheelSize = this.wheelMesh.geometry.boundingBox.size();
 
     this.wheelPositions = options.wheelPositions || [];
 
@@ -84,7 +84,7 @@ THREE.PhysicalVehicle.prototype = {
         });
 
         var q = new CANNON.Quaternion();
-        q.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), Math.PI / 2);
+        q.setFromAxisAngle(new CANNON.Vec3(0, 1, 0), Math.PI / 2);
         wheelBody.addShape(wheelShape, new CANNON.Vec3(), q);
         wheelBody.angularDamping = 0.4;
 
@@ -165,23 +165,20 @@ THREE.PhysicalVehicle.prototype = {
 
         }
 
-        else if( typeof wheelIndex === "array" ) {
+        else if( wheelIndex.constructor === Array ) {
 
             var wheelLength = wheelIndex.length;
 
             for( var i = 0; i < wheelLength; i++ ) {
 
                 var wheelI = wheelIndex[i];
-
-                if( wheelI ) {
-                    this.vehicle.setWheelForce( value, i );
-                }
+                this.vehicle.setWheelForce( value, wheelI );
 
             }
 
         } else {
 
-            this.vehicle.setBrake(0, wheelIndex);
+            //this.vehicle.setBrake(0, wheelIndex);
             this.vehicle.setWheelForce( value, wheelIndex );
 
         }
@@ -190,9 +187,13 @@ THREE.PhysicalVehicle.prototype = {
 
     setSteeringValue: function( value, i ) {
 
-        if ( typeof i === "array" ) {
+        console.log(value, i );
+
+        if ( i.constructor === Array ) {
 
             var indexLength = i.length;
+
+            console.log(indexLength);
 
             for( var t = 0; t < indexLength; t++ ) {
 

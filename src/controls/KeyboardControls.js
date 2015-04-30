@@ -169,6 +169,16 @@ THREE.KeyboardControls = function(options, domElement) {
 
         HELDKEYS[charName] = false;
 
+        scope.dispatch({
+            type: "keyup",
+            charName: charName
+        });
+
+        scope.dispatch({
+            type: "keyup " + charName,
+            charName: charName
+        });
+
     };
 
 
