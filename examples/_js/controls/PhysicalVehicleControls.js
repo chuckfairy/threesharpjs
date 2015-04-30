@@ -53,6 +53,7 @@ THREE.PhysicalVehicleControls = function( physicalVehicle, options ) {
 
     var keyUp = function( event ) {
 
+
         switch( event.charName ) {
 
             case "up": case "w": case "down": case "s":
