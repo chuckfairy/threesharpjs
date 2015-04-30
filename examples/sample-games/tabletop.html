@@ -157,7 +157,7 @@ function init() {
 
     world = new THREE.World();
     world.init("webGL", {renderType: "webgl"});
-    world.useShadows(true, THREE.PCFSoftShadowMap, true);
+    //world.useShadows(true, THREE.PCFSoftShadowMap, true);
 
     renderer = world.getRenderer();
 
@@ -441,8 +441,8 @@ function initTableControl() {
 
     var touchChangeCamera = function(event) {
 
-        cameraNumber = (cameraNumber + 1 >= 4) ? 1 : ++cameraNumber;
-        world.changeCamera(cameraNumber);
+        cameraNumber = ( (cameraNumber + 1) >= 4 ) ? 0 : cameraNumber + 1;
+        world.setCamera(cameraNumber);
 
     };
 
@@ -532,9 +532,7 @@ function loadGame( name ) {
 
         world.universalLoad( game.url, function(sceneObj) {
 
-            game.scene.children = Object.keys(sceneObj.objects).map( function(k) {
-                return sceneObj.objects[k];
-            });
+            game.scene = sceneObj;
 
             setGame(game);
 

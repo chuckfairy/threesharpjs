@@ -6,8 +6,6 @@ THREE.Exporter = function() {
 
     this.OBJExporter = new THREE.OBJExporter;
 
-    this.SceneExporter = new THREE.SceneExporter;
-
     this.STLExporter = new THREE.STLExporter;
 
     this.STLBinaryExporter = new THREE.STLExporter;
@@ -64,12 +62,6 @@ THREE.Exporter.prototype = {
         }
 
         return this.OBJExporter.parse(object);
-
-    },
-
-    scene: function(scene) {
-
-        return this.SceneExporter.parse(scene);
 
     },
 

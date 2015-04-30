@@ -5,9 +5,10 @@ THREE.Physics = function(options) {
     var SCOPE = this;
     var WORLD = new CANNON.World();
     WORLD.gravity.set( 0, -9.8, 0 );
-    WORLD.broadphase = new CANNON.NaiveBroadphase();
-    WORLD.solver.iterations = 40;
+    WORLD.broadphase = new CANNON.SAPBroadphase(WORLD);
+    WORLD.solver.iterations = 30;
     WORLD.allowSleep = options.allowSleep;
+    WORLD.defaultContactMaterial.friction = 0.2;
 
     //Wolrd time point
     var TIMESTEP = 0;
@@ -17,6 +18,20 @@ THREE.Physics = function(options) {
 
     //Cannon physical elements
     var CANNON_BODIES = {};
+
+
+    /********************Properties********************/
+
+    this.groundMaterial = new CANNON.Material("groundMaterial");
+    this.wheelMaterial = new CANNON.Material("wheelMaterial");
+    this.wheelGroundContactMaterial = new CANNON.ContactMaterial(this.wheelMaterial, this.groundMaterial, {
+        friction: 0.3,
+        restitution: 0,
+        contactEquationStiffness: 1000
+    });
+
+    // We must add the contact materials to the world
+    WORLD.addContactMaterial(this.wheelGroundContactMaterial);
 
     //Frames per second
     this.fps = 20;
@@ -43,9 +58,16 @@ THREE.Physics = function(options) {
 
     //Update the thru a time step
     this.update = function(delta) {
+
+        this.dispatch({
+            type: 'before-update',
+            delta: delta
+        });
+
         //TIMESTEP += delta * ;
         WORLD.step( (1 / SCOPE.fps) );
         SCOPE.updateBodies();
+
     };
 
     //Update positions and rotation of objects
@@ -81,14 +103,9 @@ THREE.Physics = function(options) {
         WORLD.gravity.set(vector3.x, vector3.y, vector3.z);
     };
 
-    //Set world timestep
-    this.setTimestep = function(number) {
-        TIMESTEP = number - 0 || 0;
-    };
-
     //add an object to physical world
     //and uses cannon built in rigid body detection
-    this.addObject = function(mesh, options) {
+    this.addObject = function( mesh, options ) {
 
         if(!(mesh instanceof THREE.Object3D)) {
             throw new Error("Parameter not THREE.Object3D");
@@ -111,6 +128,7 @@ THREE.Physics = function(options) {
         WORLD.add(cannonBody);
 
     };
+
 
     //Remove object from simulation
     this.removeObject = function(uuid) {
@@ -140,5 +158,7 @@ THREE.Physics = function(options) {
     //Set init options
     options = options || {};
     SCOPE.init(options);
-    
+
 };
+
+THREE.Physics.prototype = Object.create(THREE.Event.prototype);

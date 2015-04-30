@@ -21,12 +21,21 @@ THREE.TouchControls = function(options, domElement) {
     //Mouse xy coordinates
     this.pointerXY = new THREE.Vector2();
 
+    //Mouse touch start position
+    this.touchStartPosition = new THREE.Vector2();
+
     //Last movement speed
     this.lastMovement = new THREE.Vector2();
 
     //Movement threshold
     this.swipeSpeed = (options.swipeSpeed) ?
-        (options.swipeSpeed - 0.0) / 100 : 0.01;
+        (options.swipeSpeed - 0.0) : 0.5;
+
+    //Swipe speed time for touch end
+    this.swipeSpeedTime = (options.swipeSpeedTime) ?
+        (options.swipeSpeedTime - 0.0) : 100;
+
+    this.lastTouchTime = 0;
 
     //Number of currently touch fingers
     this.touchNumber = 0;
@@ -47,13 +56,7 @@ THREE.TouchControls = function(options, domElement) {
     this.start = function() {
 
         if( scope.live ) {return;}
-
-        if( !scope.hasTouch ) {
-
-            console.log("Device does not have touch controls");
-            return;
-
-        }
+        if( !scope.hasTouch ) { return; }
 
         scope.domElement.addEventListener("touchstart", touchstart, false);
         scope.domElement.addEventListener("touchend", touchend, false);
@@ -116,8 +119,9 @@ THREE.TouchControls = function(options, domElement) {
         event.preventDefault();
 
         scope.touchNumber = event.touches.length;
-
         scope.updatePointerXY(event);
+        scope.touchStartPosition.copy(scope.pointerXY);
+        scope.lastTouchTime = Date.now();
 
         scope.dispatch({
             type: "touchstart",
@@ -142,6 +146,8 @@ THREE.TouchControls = function(options, domElement) {
         //Check if swipe
         swipe(event);
 
+        scope.lastTouchTime = 0;
+
     };
 
 
@@ -159,6 +165,8 @@ THREE.TouchControls = function(options, domElement) {
         movement.x -= scope.pointerXY.x;
         movement.y -= scope.pointerXY.y;
 
+        scope.lastTouchTime = Date.now();
+
         scope.dispatch({
             type: "touchmove",
             coords: scope.pointerXY,
@@ -172,14 +180,27 @@ THREE.TouchControls = function(options, domElement) {
 
     //Detect swipe function
 
-    var swipe = function(event) {
+    var swipe = function( event ) {
 
         //Detect movement direction
 
         var direction;
 
-        var movement = scope.lastMovement;
+        var movement = scope.lastMovement.sub(scope.touchStartPosition);
+        var speed = Math.max(movement.x, movement.y);
+        var lastTime = Date.now() - scope.lastTouchTime;
 
+        //Check swipe speed greater then threshold
+        if( !( speed > scope.swipeSpeed ) ) {
+            return;
+        }
+
+        //Check if swipe time is over threshold
+        if( Date.now() - scope.lastTouchTime > scope.swipeSpeedTime ) {
+            return;
+        }
+
+        //Determine direction
         if( movement.x > movement.y ) {
 
             direction = (movement.x < 0) ? "left" : "right";
@@ -190,20 +211,18 @@ THREE.TouchControls = function(options, domElement) {
 
         }
 
-        //Check swipe speed greater then threshold
-
-        var speed = Math.max(movement.x, movement.y);
-
-        if( speed > scope.swipeSpeed && direction ) {
+        if( direction ) {
 
             scope.dispatch({
                 type: "swipe",
                 direction: direction,
+                movement: movement,
                 speed: speed
             });
 
             scope.dispatch({
                 type: ("swipe " + direction),
+                movement: movement,
                 speed: speed
             });
 

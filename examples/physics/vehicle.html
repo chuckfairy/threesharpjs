@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <title>Three#js | Physics : Vehicle</title>
+
+    <link rel="stylesheet" href="../_css/demo.css">
+
+    <script src="../../build/gamethree.min.js"></script>
+
+</head>
+
+<body>
+
+<!--Webgl wrapper-->
+<div id="webGL"></div>
+
+<!--Info box for examples-->
+<div id="infoBox">
+    <h2>Physical Vehicle | Three#js</h2>
+</div>
+
+<!--DAT GUI div-->
+<div id="gui"></div>
+
+<!--Main js-->
+<script src="../_js/lib/dat.gui.min.js"></script>
+<script src="../_js/guis/Physics.GUI.js"></script>
+<script src="../_js/controls/PhysicalVehicleControls.js"></script>
+
+<script>
+
+//World and controls
+var world, camera, controls, directionallight;
+
+//3D meshes
+var plane, vehicleChassis, vehicleWheel;
+
+//THREE Physics
+var physics, physicsGUI, physicalVehicle;
+
+//Controls
+var controls, vehicleControls;
+
+
+//3D Materials
+var greyLambert = new THREE.MeshLambertMaterial({color: 0xffffff});
+var bluePhong = new THREE.MeshPhongMaterial({
+    ambient: 0x000000, color: 0x9EB5FF, specular: 0xffffff,
+    shading: THREE.FlatShading
+});
+
+var blackLambert = new THREE.MeshLambertMaterial({
+    color: 0x525252, shading: THREE.FlatShading
+});
+
+
+
+//Create world and setup
+window.onload = function() {
+    init();
+    initPhysics();
+    initVehicle();
+}
+
+
+function init() {
+
+    world = new THREE.World();
+    world.init("webGL", {renderType: "webgl"});
+    world.useShadows(true);
+
+    //Get and move camera default is at 0,0,0
+    camera = world.getCamera();
+    camera.position.set(0, 50, -200);
+    camera.lookAt(new THREE.Vector3(0,0,0));
+
+    //controls = new THREE.OrbitControls(camera);
+
+    //Create a floor
+    var planegeo = new THREE.PlaneBufferGeometry(400, 400, 64);
+    plane = new THREE.Mesh(planegeo, greyLambert);
+    plane.material.color.setHex(0xffffff);
+    plane.rotation.x = -(Math.PI / 2);
+    plane.receiveShadow = true;
+
+    //Create light
+    directionallight = new THREE.DirectionalLight(0xfffff0, .8, 20, 400);
+    directionallight.position.set(60, 60, -10);
+    directionallight.target = plane;
+
+    directionallight.castShadow = true;
+    directionallight.shadowBias = .0001;
+    directionallight.shadowCameraNear = 5;
+    directionallight.shadowCameraFar = 230;
+    directionallight.shadowCameraFov = 80;
+    directionallight.shadowMapHeight = 4096; //2048
+    directionallight.shadowMapWidth = 4096;
+    directionallight.shadowDarkness = .8;
+    //directionallight.shadowCameraVisible = true;
+
+    //Add plane and light
+    world.addMesh(plane);
+    world.addLight(directionallight);
+
+}
+
+
+function initPhysics() {
+
+    //Physics set using THREE.Physics object
+    physics = new THREE.Physics({
+        gravity: new THREE.Vector3(0, -9.8, 0)
+    });
+
+    var physicsWorld = physics.getWorld();
+
+    var groundMaterial = new CANNON.Material("groundMaterial");
+    var wheelMaterial = new CANNON.Material("wheelMaterial");
+    var wheelGroundContactMaterial = window.wheelGroundContactMaterial = new CANNON.ContactMaterial(wheelMaterial, groundMaterial, {
+        friction: 0.3,
+        restitution: 0,
+        contactEquationStiffness: 1000
+    });
+
+    // We must add the contact materials to the world
+    physicsWorld.addContactMaterial(wheelGroundContactMaterial);
+
+    physics.addObject(plane, {
+        material: physics.groundMaterial
+    });
+
+    world.on('before-render', function(event) {
+        physics.update( 1/60 );
+    });
+
+
+    //Set GUI see _js/guis/Physics.GUI.js
+    physicsGUI = new THREE.Physics.GUI(physics);
+    physicsGUI.appendToElement("gui");
+
+}
+
+
+function initVehicle() {
+
+    var vehicleGeo = new THREE.BoxGeometry(20, 10, 40, 5, 5);
+    vehicleChassis = new THREE.Mesh(vehicleGeo, bluePhong);
+    vehicleChassis.receiveShadow = vehicleChassis.castShadow = true;
+    vehicleChassis.position.y += 20;
+    vehicleChassis.parent = world.getScene();
+
+    var wheelGeo = new THREE.SphereGeometry(7, 11, 11); //new THREE.BoxGeometry(8,8,8);//
+    var vehicleWheel = new THREE.Mesh(wheelGeo, blackLambert);
+    //vehicleWheel.material.shading = THREE.SmoothShading;
+    vehicleWheel.receiveShadow = vehicleWheel.castShadow = true;
+
+
+    //See list of options in src/physics/PhysicalVehicle
+    var carOptions = {
+
+        wheelMesh: vehicleWheel,
+
+        wheelMaterial: physics.wheelMaterial,
+
+        //top left + right, bottom left + right
+        wheelPositions: [
+
+            {
+                position: new THREE.Vector3(15, -10, 10),
+                axis: new CANNON.Vec3(1, 0, 0)
+            },
+
+            {
+                position: new THREE.Vector3(-15, -10, 10),
+                axis: new THREE.Vector3(1, 0, 0),
+            },
+
+            {
+                position: new THREE.Vector3(15, -10, -10),
+                axis: new CANNON.Vec3(1, 0, 0)
+            },
+
+            {
+                position: new THREE.Vector3(-15, -10, -10),
+                axis: new CANNON.Vec3(1, 0, 0)
+            }
+
+        ],
+
+        wheelDirection: new CANNON.Vec3(0, -1, 0)
+
+    };
+
+    physicalVehicle = new THREE.PhysicalVehicle(vehicleChassis, carOptions);
+
+    physicalVehicle.addToWorld(physics.getWorld());
+
+    world.addMesh(vehicleChassis);
+
+    physics.on("before-update", function(event) {
+
+        physicalVehicle.update();
+
+        camera.position.copy(physicalVehicle.chassisBody.position);
+        camera.position.y += 70;
+        camera.position.z -= 200;
+        camera.lookAt(physicalVehicle.chassisBody.position);
+
+    });
+
+    vehicleControls = new THREE.PhysicalVehicleControls( physicalVehicle );
+
+    world.LaunchWorld();
+
+}
+
+
+
+</script>
+</body>
+</html>

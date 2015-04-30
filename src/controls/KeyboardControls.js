@@ -25,14 +25,19 @@ THREE.KeyboardControls = function(options, domElement) {
     this.charCodes = {
 
         //Alphabet
-        65: "a", 68: "d", 70: "f", 83: "s",
-        84: "t", 87: "w", 89: "y",
+        65: "a", 66: "b", 67: "c", 68: "d", 69: "e", 70: "f", 71: "g",
+        72: "h", 73: "i", 74: "j", 75: "k", 76: "l", 77: "m", 78: "n",
+        79: "o", 80: "p", 81: "q", 82: "r", 83: "s", 84: "t", 85: "u",
+        86: "v", 87: "w", 88: "x", 89: "y", 90: "z",
 
+        //Directionals
         38: "up", 37: "left", 40: "down", 39:"right",
 
+        //Numbers
         48: "0", 49: "1", 50: "2", 51: "3", 52: "4",
         53: "5", 54: "6", 55: "7", 56: "8", 57: "9",
 
+        //Action
         8: "backspace", 9: "tab", 13: "enter", 16: "shift",
         17: "ctrl", 18: "alt", 19: "pause", 20: "caps lock",
         32: "space", 46: "delete"
@@ -57,6 +62,8 @@ THREE.KeyboardControls = function(options, domElement) {
         scope.domElement.addEventListener("mousedown", clickdown, false);
         scope.domElement.addEventListener("mouseup", clickup, false);
         scope.domElement.addEventListener("mousemove", mousemove, false);
+        scope.domElement.addEventListener("scroll", scroll, false);
+
         scope.live = true;
 
     };
@@ -71,6 +78,8 @@ THREE.KeyboardControls = function(options, domElement) {
         scope.domElement.removeEventListener("mousedown", clickdown, false);
         scope.domElement.removeEventListener("mouseup", clickup, false);
         scope.domElement.removeEventListener("mousemove", mousemove, false);
+        scope.domElement.removeEventListener("scroll", scroll, false);
+
         scope.live = false;
 
     };
@@ -226,6 +235,12 @@ THREE.KeyboardControls = function(options, domElement) {
             });
 
         }
+
+    };
+
+    var scroll = function(event) {
+
+
 
     };
 

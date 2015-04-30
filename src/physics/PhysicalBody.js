@@ -40,15 +40,15 @@ THREE.PhysicalBody = function(mesh, options) {
 
         //Set shape to body
         //Create physical body and create prototype
-        var mass = (mesh.mass) ? Math.max(0, (mesh.mass - 0.0)) : 0;
+        var mass = (mesh.mass) ? mesh.mass - 0.0 : 0;
 
-        BODY = new CANNON.Body({mass: mass});
+        var bodyOptions = {mass: mass};
+        if( options.material ) { bodyOptions.material = options.material; }
+
+        BODY = new CANNON.Body( bodyOptions );
         BODY.angularDamping = 0.5;
 
-        var offset;
-        if(options.offset) {
-            offset = SCOPE.getOffset(mesh);
-        }
+        var offset = new CANNON.Quaternion().copy(mesh.quaternion);
 
         BODY.addShape(SHAPE, offset);
     };
@@ -171,20 +171,37 @@ THREE.PhysicalBody = function(mesh, options) {
     };
 
     //Create cannon cylinder from object3d
-    this.createCylinderShape = function(cylindergeo, segments) {
+    this.createCylinderShape = function(cylindergeo, segmentsOpt) {
 
-        var boundingBox = SCOPE.getBoundingBox(cylindergeo);
+        var radiusTop, radiusBottom, height,
+            segments;
 
-        //Radius given from bounding box max
-        var radius = Math.max(boundingBox.x, boundingBox.z) / 2;
-        var height = boundingBox.y;
+        //Regular geometry bouding box to clyinder
+        if( !(cylindergeo instanceof THREE.CylinderGeometry) ) {
 
-        //Radial segements for smoothness
-        segments = segments || 32;
+            var boundingBox = SCOPE.getBoundingBox(cylindergeo);
 
-        console.log(radius, height);
+            //Radius given from bounding box max
+            radiusTop = radiusBottom = Math.max(boundingBox.x, boundingBox.z) / 2;
+            height = boundingBox.y;
 
-        return new CANNON.Cylinder(radius, radius, height, segments);
+            //Radial segements for smoothness
+            segments = segmentsOpt || 32;
+
+            //console.log(radius, height);
+
+        } else {
+
+            var p = cylindergeo.parameters;
+
+            radiusTop = p.radiusTop || 20;
+            radiusBottom = p.radiusBottom || 20;
+            height = p.height || 100;
+            segments = Math.max( p.radialSegments || 8, p.heightSegments || 1 );
+
+        }
+
+        return new CANNON.Cylinder(radiusTop, radiusBottom, height, segments);
 
     };
 
