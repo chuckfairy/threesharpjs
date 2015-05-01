@@ -187,21 +187,13 @@ THREE.PhysicalVehicle.prototype = {
 
     setSteeringValue: function( value, i ) {
 
-        console.log(value, i );
-
         if ( i.constructor === Array ) {
 
             var indexLength = i.length;
 
-            console.log(indexLength);
-
             for( var t = 0; t < indexLength; t++ ) {
 
-                console.log(value, i[t]);
-
                 this.vehicle.setSteeringValue( value, i[t] );
-
-                console.log(i[t]);
 
             }
 

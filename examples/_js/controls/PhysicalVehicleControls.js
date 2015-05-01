@@ -20,7 +20,7 @@ THREE.PhysicalVehicleControls = function( physicalVehicle, options ) {
     //array of wheel drive [1, 0] which wheels to move
     this.wheelDrive = options.wheelDrive || [ 0, 1, 2, 3 ];
 
-    this.steeringDrive = options.steeringDrive || [ 0, 1];
+    this.steeringDrive = options.steeringDrive || [ 0, 1, 2, 3];
 
     //max wheel rotation
     this.wheelRotation = 0;

@@ -3,10 +3,13 @@
 THREE.Physics = function(options) {
 
     var SCOPE = this;
+
     var WORLD = new CANNON.World();
     WORLD.gravity.set( 0, -9.8, 0 );
     WORLD.broadphase = new CANNON.SAPBroadphase(WORLD);
     WORLD.solver.iterations = 30;
+    //WORLD.solver.tolerance = 0;
+
     WORLD.allowSleep = options.allowSleep;
     WORLD.defaultContactMaterial.friction = 0.2;
 

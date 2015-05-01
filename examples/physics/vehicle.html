@@ -49,8 +49,9 @@ var controls, vehicleControls;
 
 //3D Materials
 var greyLambert = new THREE.MeshLambertMaterial({color: 0xffffff});
-var bluePhong = new THREE.MeshPhongMaterial({
-    ambient: 0x000000, color: 0x9EB5FF, specular: 0xffffff,
+
+var chassisMaterial = new THREE.MeshPhongMaterial({
+    ambient: 0x000000, color: 0x0D54FA, specular: 0xffffff,
     shading: THREE.FlatShading
 });
 
@@ -72,7 +73,7 @@ function init() {
 
     world = new THREE.World();
     world.init("webGL", {renderType: "webgl"});
-    world.useShadows(true);
+    world.useShadows(true, THREE.PCFSoftShadowMap, true);
 
     //Get and move camera default is at 0,0,0
     camera = world.getCamera();
@@ -82,25 +83,26 @@ function init() {
     //controls = new THREE.OrbitControls(camera);
 
     //Create a floor
-    var planegeo = new THREE.PlaneBufferGeometry(400, 400, 64);
+    var planegeo = new THREE.BoxGeometry(550, 550, 3);
     plane = new THREE.Mesh(planegeo, greyLambert);
     plane.material.color.setHex(0xffffff);
+    plane.position.y -= 10;
     plane.rotation.x = -(Math.PI / 2);
     plane.receiveShadow = true;
 
     //Create light
     directionallight = new THREE.DirectionalLight(0xfffff0, .8, 20, 400);
-    directionallight.position.set(60, 60, -10);
+    directionallight.position.set(120, 120, -10);
     directionallight.target = plane;
 
     directionallight.castShadow = true;
-    directionallight.shadowBias = .0001;
-    directionallight.shadowCameraNear = 5;
-    directionallight.shadowCameraFar = 230;
-    directionallight.shadowCameraFov = 80;
+    directionallight.shadowBias = .0011;
+    directionallight.shadowCameraNear = 50;
+    directionallight.shadowCameraFar = 400;
+    directionallight.shadowCameraFov = 50;
     directionallight.shadowMapHeight = 4096; //2048
     directionallight.shadowMapWidth = 4096;
-    directionallight.shadowDarkness = .8;
+    directionallight.shadowDarkness = .5;
     //directionallight.shadowCameraVisible = true;
 
     //Add plane and light
@@ -121,7 +123,7 @@ function initPhysics() {
 
     var groundMaterial = new CANNON.Material("groundMaterial");
     var wheelMaterial = new CANNON.Material("wheelMaterial");
-    var wheelGroundContactMaterial = window.wheelGroundContactMaterial = new CANNON.ContactMaterial(wheelMaterial, groundMaterial, {
+    var wheelGroundContactMaterial = new CANNON.ContactMaterial(wheelMaterial, groundMaterial, {
         friction: 0.3,
         restitution: 0,
         contactEquationStiffness: 1000
@@ -149,13 +151,13 @@ function initPhysics() {
 function initVehicle() {
 
     var vehicleGeo = new THREE.BoxGeometry(20, 10, 40, 5, 5);
-    vehicleChassis = new THREE.Mesh(vehicleGeo, bluePhong);
+    vehicleChassis = new THREE.Mesh(vehicleGeo, chassisMaterial);
     vehicleChassis.receiveShadow = vehicleChassis.castShadow = true;
     vehicleChassis.position.y += 20;
     vehicleChassis.parent = world.getScene();
 
-    //var wheelGeo = new THREE.SphereGeometry(7, 11, 11);
-    var wheelGeo = new THREE.BoxGeometry(10,10,10);
+    var wheelGeo = new THREE.SphereGeometry(7, 11, 11);
+    var wheelGeo = new THREE.BoxGeometry(9,9,9);
     //var wheelGeo = new THREE.CylinderGeometry(5,5,10);
     //wheelGeo.rotation.x = Math.PI / 2;
     var vehicleWheel = new THREE.Mesh(wheelGeo, blackLambert);
@@ -175,28 +177,28 @@ function initVehicle() {
         wheelPositions: [
 
             {
-                position: new THREE.Vector3(17, -10, 10),
+                position: new THREE.Vector3(15, -10, 10),
                 axis: new CANNON.Vec3(1, 0, 0)
             },
 
             {
-                position: new THREE.Vector3(-17, -10, 10),
+                position: new THREE.Vector3(-15, -10, 10),
                 axis: new THREE.Vector3(1, 0, 0),
             },
 
             {
-                position: new THREE.Vector3(17, -10, -10),
+                position: new THREE.Vector3(15, -10, -10),
                 axis: new CANNON.Vec3(1, 0, 0)
             },
 
             {
-                position: new THREE.Vector3(-17, -10, -10),
+                position: new THREE.Vector3(-15, -10, -10),
                 axis: new CANNON.Vec3(1, 0, 0)
             }
 
         ],
 
-        wheelDirection: new CANNON.Vec3(0, -1, 0)
+        wheelDirection: new CANNON.Vec3(1, 0, 0)
 
     };
 
@@ -206,13 +208,16 @@ function initVehicle() {
 
     world.addMesh(vehicleChassis);
 
+
     physics.on("before-update", function(event) {
 
         physicalVehicle.update();
 
-        camera.position.copy(physicalVehicle.chassisBody.position);
-        camera.position.y += 70;
-        camera.position.z -= 200;
+        var relativeCameraOffset = new THREE.Vector3(0, 50, -200);
+        var cameraOffset = relativeCameraOffset.applyMatrix4( vehicleChassis.matrixWorld );
+
+        camera.position.copy(cameraOffset);
+
         camera.lookAt(physicalVehicle.chassisBody.position);
 
     });
@@ -223,6 +228,7 @@ function initVehicle() {
 
 }
 
+var vehicleRotation;
 
 
 </script>
