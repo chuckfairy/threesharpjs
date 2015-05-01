@@ -48,8 +48,6 @@ var controls, vehicleControls;
 
 
 //3D Materials
-var greyLambert = new THREE.MeshLambertMaterial({color: 0xffffff});
-
 var chassisMaterial = new THREE.MeshPhongMaterial({
     ambient: 0x000000, color: 0x0D54FA, specular: 0xffffff,
     shading: THREE.FlatShading
@@ -59,6 +57,14 @@ var blackLambert = new THREE.MeshLambertMaterial({
     color: 0x525252, shading: THREE.FlatShading
 });
 
+var groundUrl = "../_assets/images/hubble.jpg";
+
+var groundTexture = THREE.ImageUtils.loadTexture( groundUrl );
+
+var groundMaterial = new THREE.MeshLambertMaterial({
+    color: 0xffffff, map: groundTexture
+});
+
 
 
 //Create world and setup
@@ -66,6 +72,7 @@ window.onload = function() {
     init();
     initPhysics();
     initVehicle();
+    addBlockWall();
 }
 
 
@@ -84,7 +91,7 @@ function init() {
 
     //Create a floor
     var planegeo = new THREE.BoxGeometry(550, 550, 3);
-    plane = new THREE.Mesh(planegeo, greyLambert);
+    plane = new THREE.Mesh(planegeo, groundMaterial);
     plane.material.color.setHex(0xffffff);
     plane.position.y -= 10;
     plane.rotation.x = -(Math.PI / 2);
@@ -150,16 +157,16 @@ function initPhysics() {
 
 function initVehicle() {
 
-    var vehicleGeo = new THREE.BoxGeometry(20, 10, 40, 5, 5);
+    var vehicleGeo = new THREE.BoxGeometry(19, 10, 40, 5, 5);
     vehicleChassis = new THREE.Mesh(vehicleGeo, chassisMaterial);
     vehicleChassis.receiveShadow = vehicleChassis.castShadow = true;
-    vehicleChassis.position.y += 20;
+    vehicleChassis.position.y += 40;
     vehicleChassis.parent = world.getScene();
 
     var wheelGeo = new THREE.SphereGeometry(7, 11, 11);
     var wheelGeo = new THREE.BoxGeometry(9,9,9);
-    //var wheelGeo = new THREE.CylinderGeometry(5,5,10);
-    //wheelGeo.rotation.x = Math.PI / 2;
+    //var wheelGeo = new THREE.CylinderGeometry(5,5,5);
+
     var vehicleWheel = new THREE.Mesh(wheelGeo, blackLambert);
     //vehicleWheel.quaternion.setFromAxisAngle( new THREE.Vector3( 0, 1, 0 ), Math.PI / 2 );
     //vehicleWheel.material.shading = THREE.SmoothShading;
@@ -203,9 +210,7 @@ function initVehicle() {
     };
 
     physicalVehicle = new THREE.PhysicalVehicle( vehicleChassis, carOptions );
-
     physicalVehicle.addToWorld(physics.getWorld());
-
     world.addMesh(vehicleChassis);
 
 
@@ -217,7 +222,6 @@ function initVehicle() {
         var cameraOffset = relativeCameraOffset.applyMatrix4( vehicleChassis.matrixWorld );
 
         camera.position.copy(cameraOffset);
-
         camera.lookAt(physicalVehicle.chassisBody.position);
 
     });
@@ -225,6 +229,31 @@ function initVehicle() {
     vehicleControls = new THREE.PhysicalVehicleControls( physicalVehicle );
 
     world.LaunchWorld();
+
+}
+
+
+function addBlockWall() {
+
+
+    var blockGeo = new THREE.BoxGeometry(6, 6, 6);
+    var blockMesh = new THREE.Mesh( blockGeo, blackLambert );
+    var startX = -30;
+
+    for( var i = 0; i < 6; i++ ) {
+
+        for( var t = 0; t < 6; t++ ) {
+
+            var block = blockMesh.clone();
+            block.position.set( (startX + (i*11)), t * 11 + 5, 100);
+            block.mass = .5;
+
+            world.addMesh( block );
+            physics.addObject( block );
+
+        }
+
+    }
 
 }
 
