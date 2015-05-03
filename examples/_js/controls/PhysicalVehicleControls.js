@@ -47,6 +47,14 @@ THREE.PhysicalVehicleControls = function( physicalVehicle, options ) {
                 scope.vehicle.setSteeringValue( -scope.steeringForce, scope.steeringDrive );
                 break;
 
+            case "space" :
+
+                if( scope.vehicle.vehicleBody.velocity.y < 5 ) {
+                    scope.vehicle.vehicleBody.velocity.y += 20;
+                }
+
+                break;
+
         }
 
     };
