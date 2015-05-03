@@ -83,7 +83,7 @@ function init() {
 
     var geometry = new THREE.SphereGeometry(1000, 10, 10);
     var texture = THREE.ImageUtils.loadTexture( '../_assets/images/hubble.jpg' );
-    texture.magFilter = THREE.Linear;
+    texture.magFilter = THREE.LinearMipMapLinear;
     texture.minFilter = THREE.LinearMipMapLinear;
 
     //Create "space" skyBox

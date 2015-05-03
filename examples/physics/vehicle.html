@@ -57,13 +57,19 @@ var blackLambert = new THREE.MeshLambertMaterial({
     color: 0x525252, shading: THREE.FlatShading
 });
 
-var groundUrl = "../_assets/images/hubble.jpg";
+var groundUrl = "../_assets/textures/sand2.jpg";
 
 var groundTexture = THREE.ImageUtils.loadTexture( groundUrl );
+groundTexture.wrapS = groundTexture.wrapT = THREE.ClampToEdgeWrapping;
+groundTexture.magFilter = THREE.NearestFilter;
+groundTexture.minFilter = THREE.NearestFilter;
+groundTexture.repeat.set( 1, 1 );
 
 var groundMaterial = new THREE.MeshLambertMaterial({
     color: 0xffffff, map: groundTexture
 });
+
+var sky;
 
 
 
@@ -86,6 +92,9 @@ function init() {
     camera = world.getCamera();
     camera.position.set(0, 50, -200);
     camera.lookAt(new THREE.Vector3(0,0,0));
+
+    scene = world.getScene();
+    renderer = world.getRenderer();
 
     //controls = new THREE.OrbitControls(camera);
 
@@ -112,8 +121,39 @@ function init() {
     directionallight.shadowDarkness = .5;
     //directionallight.shadowCameraVisible = true;
 
+    // Add Sky Mesh
+	sky = new THREE.Sky();
+    //sky.mesh.scale.multiplyScalar(5,5,5);
+
+    waterNormals = new THREE.ImageUtils.loadTexture( 'textures/waternormals.jpg' );
+	waterNormals.wrapS = waterNormals.wrapT = THREE.RepeatWrapping;
+
+	water = new THREE.Water( renderer, camera, scene, {
+		textureWidth: 512,
+		textureHeight: 512,
+		waterNormals: waterNormals,
+		alpha: 	1.0,
+		sunDirection: new THREE.Vector3(.5, .5, 0),
+		sunColor: 0xffffff,
+		waterColor: 0x001e0f,
+		distortionScale: 50.0,
+	} );
+
+
+	mirrorMesh = new THREE.Mesh(
+		new THREE.PlaneBufferGeometry( 100 * 500, 100 * 500 ),
+		water.material
+	);
+
+    mirrorMesh.position.y -=50;
+
+	mirrorMesh.add( water );
+	mirrorMesh.rotation.x = - Math.PI * 0.5;
+	scene.add( mirrorMesh );
+
     //Add plane and light
     world.addMesh(plane);
+    world.addMesh(sky.mesh);
     world.addLight(directionallight);
 
 }
@@ -238,6 +278,7 @@ function addBlockWall() {
 
     var blockGeo = new THREE.BoxGeometry(6, 6, 6);
     var blockMesh = new THREE.Mesh( blockGeo, blackLambert );
+    blockMesh.castShadow = blockMesh.receiveShadow = true;
     var startX = -30;
 
     for( var i = 0; i < 6; i++ ) {
@@ -245,7 +286,7 @@ function addBlockWall() {
         for( var t = 0; t < 6; t++ ) {
 
             var block = blockMesh.clone();
-            block.position.set( (startX + (i*11)), t * 11 + 5, 100);
+            block.position.set( (startX + (i*8)), t * 11 + 5, 100);
             block.mass = .5;
 
             world.addMesh( block );
