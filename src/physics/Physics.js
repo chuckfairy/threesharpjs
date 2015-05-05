@@ -7,14 +7,17 @@ THREE.Physics = function(options) {
     var WORLD = new CANNON.World();
     WORLD.gravity.set( 0, -9.8, 0 );
     WORLD.broadphase = new CANNON.SAPBroadphase(WORLD);
-    WORLD.solver.iterations = 30;
+    WORLD.solver.iterations = 10;
     //WORLD.solver.tolerance = 0;
 
     WORLD.allowSleep = options.allowSleep;
-    WORLD.defaultContactMaterial.friction = 0.2;
+    WORLD.defaultContactMaterial.friction = 1000;
+    WORLD.defaultContactMaterial.restitution = .2;
 
     //Wolrd time point
     var TIMESTEP = 0;
+
+    var MAXSTEPS = 1;
 
     //THREE.js Objects
     var OBJECTS = {};
@@ -28,7 +31,7 @@ THREE.Physics = function(options) {
     this.groundMaterial = new CANNON.Material("groundMaterial");
     this.wheelMaterial = new CANNON.Material("wheelMaterial");
     this.wheelGroundContactMaterial = new CANNON.ContactMaterial(this.wheelMaterial, this.groundMaterial, {
-        friction: 0.3,
+        friction: 10000,
         restitution: 0,
         contactEquationStiffness: 1000
     });
@@ -60,7 +63,7 @@ THREE.Physics = function(options) {
     };
 
     //Update the thru a time step
-    this.update = function(delta) {
+    this.update = function( delta ) {
 
         this.dispatch({
             type: 'before-update',
@@ -68,7 +71,7 @@ THREE.Physics = function(options) {
         });
 
         //TIMESTEP += delta * ;
-        WORLD.step( (1 / SCOPE.fps) );
+        WORLD.step( delta );
         SCOPE.updateBodies();
 
     };
@@ -88,7 +91,9 @@ THREE.Physics = function(options) {
 
             mesh.position.copy(cannon.position);
             mesh.quaternion.copy(cannon.quaternion);
+
         }
+
     };
 
     //Get cannon world for adding stuff to it

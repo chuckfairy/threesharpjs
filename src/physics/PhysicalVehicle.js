@@ -84,8 +84,11 @@ THREE.PhysicalVehicle.prototype = {
         });
 
         var q = new CANNON.Quaternion();
-        q.setFromAxisAngle(new CANNON.Vec3(0, 1, 0), Math.PI / 2);
-        wheelBody.addShape(wheelShape, new CANNON.Vec3(), q);
+        //q.setFromAxisAngle(new CANNON.Vec3(0, 1, 0), Math.PI / 2);
+        wheelBody.addShape( wheelShape,
+            new CANNON.Vec3(),
+            new CANNON.Quaternion().copy(this.wheelMesh.quaternion)
+        );
         wheelBody.angularDamping = 0.4;
 
         var position = (options.position) ?
@@ -218,13 +221,15 @@ THREE.PhysicalVehicle.prototype = {
         var wl = this.wheelLength;
         var wheelInfo = this.vehicle.wheelInfos;
         var wheelBodies = this.wheelBodies;
+        var wheelMeshes = this.wheelMeshes;
 
         for (var i = 0; i < wl; i++) {
-            //this.vehicle.updateWheelTransform(i);
+
             var wheelBody = wheelBodies[i];//.worldTransform;
-            var wheelMesh = t.wheelMeshes[i];
+            var wheelMesh = wheelMeshes[i];
             wheelMesh.position.copy(wheelBody.position);
             wheelMesh.quaternion.copy(wheelBody.quaternion);
+
         }
 
     }

@@ -29,8 +29,12 @@
 
 <!--Main js-->
 <script src="../_js/lib/dat.gui.min.js"></script>
-<script src="../_js/guis/Physics.GUI.js"></script>
 <script src="../_js/controls/PhysicalVehicleControls.js"></script>
+
+<script src="../../src/physics/Physics.js"></script>
+<script src="../_js/guis/Physics.GUI.js"></script>
+<script src="../../src/physics/PhysicalVehicle.js"></script>
+
 
 <script>
 
@@ -57,13 +61,13 @@ var blackLambert = new THREE.MeshLambertMaterial({
     color: 0x525252, shading: THREE.FlatShading
 });
 
-var groundUrl = "../_assets/textures/sand2.jpg";
+var groundUrl = "../_assets/textures/grass1.jpg";
 
 var groundTexture = THREE.ImageUtils.loadTexture( groundUrl );
-groundTexture.wrapS = groundTexture.wrapT = THREE.ClampToEdgeWrapping;
-groundTexture.magFilter = THREE.NearestFilter;
-groundTexture.minFilter = THREE.NearestFilter;
-groundTexture.repeat.set( 1, 1 );
+groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping;
+//groundTexture.magFilter = THREE.NearestFilter;
+//groundTexture.minFilter = THREE.NearestFilter;
+groundTexture.repeat.set( 3, 3 );
 
 var groundMaterial = new THREE.MeshLambertMaterial({
     color: 0xffffff, map: groundTexture
@@ -76,6 +80,7 @@ var sky;
 //Create world and setup
 window.onload = function() {
     init();
+    initSkyBox();
     initPhysics();
     initVehicle();
     addBlockWall();
@@ -92,6 +97,9 @@ function init() {
     camera = world.getCamera();
     camera.position.set(0, 50, -200);
     camera.lookAt(new THREE.Vector3(0,0,0));
+    //camera.fov = 30;
+    camera.far = 4000;
+    camera.updateProjectionMatrix();
 
     scene = world.getScene();
     renderer = world.getRenderer();
@@ -99,11 +107,11 @@ function init() {
     //controls = new THREE.OrbitControls(camera);
 
     //Create a floor
-    var planegeo = new THREE.BoxGeometry(550, 550, 3);
+    var planegeo = new THREE.BoxGeometry(550, 3, 550);
     plane = new THREE.Mesh(planegeo, groundMaterial);
     plane.material.color.setHex(0xffffff);
     plane.position.y -= 10;
-    plane.rotation.x = -(Math.PI / 2);
+    //plane.rotation.x = -(Math.PI / 2);
     plane.receiveShadow = true;
 
     //Create light
@@ -125,14 +133,14 @@ function init() {
 	sky = new THREE.Sky();
     //sky.mesh.scale.multiplyScalar(5,5,5);
 
-    waterNormals = new THREE.ImageUtils.loadTexture( 'textures/waternormals.jpg' );
+    waterNormals = new THREE.ImageUtils.loadTexture( '../_assets/bumpmaps/water1.jpg' );
 	waterNormals.wrapS = waterNormals.wrapT = THREE.RepeatWrapping;
 
 	water = new THREE.Water( renderer, camera, scene, {
 		textureWidth: 512,
 		textureHeight: 512,
 		waterNormals: waterNormals,
-		alpha: 	1.0,
+		alpha: 	1,
 		sunDirection: new THREE.Vector3(.5, .5, 0),
 		sunColor: 0xffffff,
 		waterColor: 0x001e0f,
@@ -151,12 +159,50 @@ function init() {
 	mirrorMesh.rotation.x = - Math.PI * 0.5;
 	scene.add( mirrorMesh );
 
+
+
     //Add plane and light
     world.addMesh(plane);
-    world.addMesh(sky.mesh);
+    //world.addMesh(sky.mesh);
     world.addLight(directionallight);
 
 }
+
+function initSkyBox() {
+
+    var geometry = new THREE.SphereGeometry(1500, 20, 20);
+    var texture = THREE.ImageUtils.loadTexture( '../_assets/images/hubble.jpg' );
+    texture.minFilter = THREE.LinearFilter;
+
+    //Create "space" skyBox
+    var uniforms = {
+        "tDiffuse": { type: 't', value: texture },
+        "opacity":  { type: "f", value: 0.5 }
+    };
+
+    var material = new THREE.ShaderMaterial( {
+        uniforms:       uniforms,
+        vertexShader:   THREE.CopyShader.vertexShader,
+        fragmentShader: THREE.CopyShader.fragmentShader
+    });
+
+    skyBox = new THREE.Mesh(geometry, material);
+    skyBox.scale.set(-1, 1, 1);
+    skyBox.renderDepth = 3000.0;
+
+    //Create event handler for render before
+    world.on("before-render", function(event) {
+
+        //Get delta of seconds
+        var delta = event.delta;
+        skyBox.rotation.y += (delta / 50);
+
+    });
+
+    world.addMesh(skyBox);
+
+}
+
 
 
 function initPhysics() {
@@ -184,7 +230,11 @@ function initPhysics() {
     });
 
     world.on('before-render', function(event) {
-        physics.update( 1/60 );
+        physics.update( 1/16 );
+
+        water.material.uniforms.time.value += 1.0 / 200.0;
+        water.render();
+
     });
 
 
@@ -208,6 +258,8 @@ function initVehicle() {
     //var wheelGeo = new THREE.CylinderGeometry(5,5,5);
 
     var vehicleWheel = new THREE.Mesh(wheelGeo, blackLambert);
+    vehicleWheel.quaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI / 2);
+
     //vehicleWheel.quaternion.setFromAxisAngle( new THREE.Vector3( 0, 1, 0 ), Math.PI / 2 );
     //vehicleWheel.material.shading = THREE.SmoothShading;
     vehicleWheel.receiveShadow = vehicleWheel.castShadow = true;
@@ -258,7 +310,7 @@ function initVehicle() {
 
         physicalVehicle.update();
 
-        var relativeCameraOffset = new THREE.Vector3(0, 50, -200);
+        var relativeCameraOffset = new THREE.Vector3(0, 35, -200);
         var cameraOffset = relativeCameraOffset.applyMatrix4( vehicleChassis.matrixWorld );
 
         camera.position.copy(cameraOffset);
@@ -268,7 +320,7 @@ function initVehicle() {
 
     vehicleControls = new THREE.PhysicalVehicleControls( physicalVehicle );
 
-    world.LaunchWorld();
+    setTimeout(world.LaunchWorld, 1000);
 
 }
 
@@ -286,8 +338,8 @@ function addBlockWall() {
         for( var t = 0; t < 6; t++ ) {
 
             var block = blockMesh.clone();
-            block.position.set( (startX + (i*8)), t * 11 + 5, 100);
-            block.mass = .5;
+            block.position.set( (startX + (i*8)), (t * 7) + 5, 100);
+            block.mass = 1;
 
             world.addMesh( block );
             physics.addObject( block );
