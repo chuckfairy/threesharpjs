@@ -87,7 +87,7 @@ THREE.KeyboardControls = function(options, domElement) {
 
     //Set dispatcher events
 
-    this.setEvents = function(events) {
+    this.setEvents = function( events ) {
 
         for( var eventName in events) {
 
