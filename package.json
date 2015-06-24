@@ -1,0 +1,26 @@
+{
+ 
+   "name": "threes",
+    "version": "0.1.0",
+    "description": "three.js game and animation framework",
+    "main": "./threes",
+
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/chuckfairy/threesharpjs.git"
+    },
+
+    "scripts": {
+        "test": "test/index.js"
+    },
+
+    "dependencies": {
+        "node-static": "*", 
+	"node-webkit-builder": "*",
+        "cfcompile": "https://github.com/chuckfairy/cfcompile"
+    },
+
+    "author": "Chuck Fairy",
+    "license": "GPL"
+
+}

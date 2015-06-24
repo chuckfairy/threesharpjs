@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 //Load server
-var COMPILER = require("./compiler/compiler.js");
+var COMPILER = require("cfcompile");
 var FS = COMPILER.getFS();
 
 //command arguments

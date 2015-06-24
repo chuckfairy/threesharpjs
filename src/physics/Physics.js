@@ -28,17 +28,6 @@ THREE.Physics = function(options) {
 
     /********************Properties********************/
 
-    this.groundMaterial = new CANNON.Material("groundMaterial");
-    this.wheelMaterial = new CANNON.Material("wheelMaterial");
-    this.wheelGroundContactMaterial = new CANNON.ContactMaterial(this.wheelMaterial, this.groundMaterial, {
-        friction: 10000,
-        restitution: 0,
-        contactEquationStiffness: 1000
-    });
-
-    // We must add the contact materials to the world
-    WORLD.addContactMaterial(this.wheelGroundContactMaterial);
-
     //Frames per second
     this.fps = 20;
 
@@ -71,7 +60,7 @@ THREE.Physics = function(options) {
         });
 
         //TIMESTEP += delta * ;
-        WORLD.step( delta );
+        WORLD.step( 1 / SCOPE.fps );
         SCOPE.updateBodies();
 
     };

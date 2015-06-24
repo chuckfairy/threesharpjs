@@ -30,8 +30,8 @@
 
 //Create world and setup
 var world = new THREE.World();
-world.init("webGL", {renderType: "webgl"});
-world.useShadows(true);
+world.init("webGL", {renderType: "canvas"});
+//world.useShadows(true);
 
 //Get and move camera default is at 0,0,0
 var camera = world.getCamera();
@@ -63,17 +63,16 @@ world.on("add-mesh", function(event) {
 });
 
 //create geometries with built in colors
-var greyLambert = new THREE.MeshLambertMaterial({color: 0xffffff});
-var bluePhong = new THREE.MeshPhongMaterial({
-    ambient: 0x000000, color: 0x9EB5FF, specular: 0xffffff
+var greyLambert = new THREE.MeshLambertMaterial({color: 0xffffff, overdraw: true});
+var bluePhong = new THREE.MeshLambertMaterial({
+    ambient: 0x000000, color: 0x9EB5FF, specular: 0xffffff,
+    overdraw: true,
 });
 
 //Create a floor
-var planegeo = new THREE.PlaneBufferGeometry(230, 230, 64);
+var planegeo = new THREE.BoxGeometry(230, 5, 230, 4, 4 );
 var plane = new THREE.Mesh(planegeo, greyLambert);
 plane.material.color.setHex(0xffffff);
-plane.rotation.x = -(Math.PI / 2);
-plane.receiveShadow = true;
 
 //Create main box mesh
 var boxgeo = new THREE.BoxGeometry(20,20,20);
