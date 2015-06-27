@@ -19,7 +19,7 @@ THREE.PhysicalBody = function(mesh, options) {
     };
 
     //Load a mesh by
-    this.loadMesh = function(mesh, options) {
+    this.loadMesh = function( mesh, options ) {
 
         //Must be THREE.Mesh
         if( !(mesh instanceof THREE.Object3D) ) {
@@ -43,7 +43,18 @@ THREE.PhysicalBody = function(mesh, options) {
         var mass = (mesh.mass) ? mesh.mass - 0.0 : 0;
 
         var bodyOptions = {mass: mass};
-        if( options.material ) { bodyOptions.material = options.material; }
+        
+		if( options.material instanceof CANNON.Material || 
+			options.material instanceof THREE.PhysicalMaterial 
+		) { 
+			
+			bodyOptions.material = options.material; 
+		
+		} else if ( typeof( options.material ) === "object" ) {
+
+			bodyOptions.material = new THREE.PhysicalMaterial( options.material );	
+
+		}
 
         BODY = new CANNON.Body( bodyOptions );
         BODY.angularDamping = 0.5;
@@ -51,25 +62,28 @@ THREE.PhysicalBody = function(mesh, options) {
         var offset = new CANNON.Quaternion().copy(mesh.quaternion);
 
         BODY.addShape(SHAPE, offset);
-    };
+    
+		mesh.body = BODY;
+
+	};
 
     //add a child object to mesh
     //uses position from mesh
-    this.addChild = function(mesh, options) {
+    this.addChild = function( mesh, options ) {
 
     };
 
     //Get CANNON Body
-    this.getBody = function() {return BODY;};
+    this.getBody = function() { return BODY; };
 
     //Get CANNON Shape
-    this.getShape = function() {return SHAPE;};
+    this.getShape = function() { return SHAPE; };
 
     //Get CANNON Surface material
-    this.getSurface = function() {return SURFACE;};
+    this.getSurface = function() { return SURFACE; };
 
     //Get size vector of box
-    this.getBoundingBox = function(mesh) {
+    this.getBoundingBox = function( mesh ) {
 
         //require boundingBox to be computed
         var boxgeo = mesh.geometry;
@@ -78,9 +92,10 @@ THREE.PhysicalBody = function(mesh, options) {
         }
 
         return boxgeo.boundingBox.size().multiplyScalar(mesh.scale.x);
-    };
+    
+	};
 
-    this.getBoundingSphereRadius = function(mesh) {
+    this.getBoundingSphereRadius = function( mesh ) {
 
         //require boundingSphere to be computed
         var sphereGeo = mesh.geometry;
@@ -89,10 +104,11 @@ THREE.PhysicalBody = function(mesh, options) {
         }
 
         return sphereGeo.boundingSphere.radius;
-    };
+    
+	};
 
     //Get object y offset
-    this.getOffset = function(mesh) {
+    this.getOffset = function( mesh ) {
 
         return 0; //mesh.geometry.center().multiplyScalar(mesh.scale.x);
 
@@ -101,19 +117,22 @@ THREE.PhysicalBody = function(mesh, options) {
     /********************Cannon body creation********************/
 
     //Create shape by desired type
-    this.createByType = function(mesh, type) {
+    this.createByType = function( mesh, type ) {
 
         //Get desired type method
         var typemethod = SCOPE.types[type];
-        if(!typemethod) {
-            throw new Error(type + " is not a valid body type");
-        }
+        if( !typemethod ) {
+            
+			throw new Error(type + " is not a valid body type");
+        
+		}
 
         return SCOPE[typemethod](mesh);
-    };
+    
+	};
 
     //Create by geometry
-    this.createByGeometry = function(mesh) {
+    this.createByGeometry = function( mesh ) {
 
         var geometry = mesh.geometry;
 
@@ -147,12 +166,14 @@ THREE.PhysicalBody = function(mesh, options) {
     };
 
     //Create cannon plane from object3d
-    this.createPlaneShape = function(planegeo) {
-        return new CANNON.Plane();
-    };
+    this.createPlaneShape = function( planegeo ) {
+
+	   	return new CANNON.Plane();
+    
+	};
 
     //Create cannon box from object3d
-    this.createBoxShape = function(boxobj) {
+    this.createBoxShape = function( boxobj ) {
 
         //Create box size vector
         var boundingBox = SCOPE.getBoundingBox(boxobj);
@@ -163,7 +184,7 @@ THREE.PhysicalBody = function(mesh, options) {
     };
 
     //Create cannon sphere from object3d
-    this.createSphereShape = function(spheregeo, segements) {
+	this.createSphereShape = function( spheregeo, segements ) {
 
         var radius = SCOPE.getBoundingSphereRadius(spheregeo);
         return new CANNON.Sphere(radius);
@@ -171,7 +192,7 @@ THREE.PhysicalBody = function(mesh, options) {
     };
 
     //Create cannon cylinder from object3d
-    this.createCylinderShape = function(cylindergeo, segmentsOpt) {
+    this.createCylinderShape = function( cylindergeo, segmentsOpt ) {
 
         var radiusTop, radiusBottom, height,
             segments;
@@ -205,16 +226,29 @@ THREE.PhysicalBody = function(mesh, options) {
 
     };
 
-    //Creates a CANNON Shape from THREE.Mesh verticies and faces
-    this.createConvexShape = function(mesh, quality) {
+	
+	//Create trimesh cannon shap from THREE.Mesh verticies
+	this.createTrimeshShape = function( mesh, quality ) {
 
-        if(mesh.geometry instanceof THREE.BufferGeometry) {
-            return SCOPE.createBoxShape(mesh);
-        }
+		
+
+	};
+
+
+    //Creates a CANNON Shape from THREE.Mesh verticies and faces
+    this.createConvexShape = function( mesh, quality ) {
+
+		var geo = mesh.geomtry;
+
+        if( mesh.geometry instanceof THREE.BufferGeometry ) {
+        
+			geo = new THREE.Geometry().fromBufferGeometry( mesh.geometry );
+        
+		}
 
         //Create cannon mesh shape
         //Output verticies and faces
-        var geo = mesh.geometry.clone();
+        geo = geo.clone();
         var rawVerts = geo.vertices.slice(0);
         var rawFaces = geo.faces.slice(0);
 
@@ -229,25 +263,32 @@ THREE.PhysicalBody = function(mesh, options) {
         var faces = [];
         var fl = rawFaces.length;
         for( var j = 0; j < fl; j++ ) {
-            var face = rawFaces[j];
+        
+			var face = rawFaces[j];
             faces.push([face.a, face.b, face.c]);
-        }
+        
+		}
 
         try {
-            return new CANNON.ConvexPolyhedron(verts, faces);
-        }
+        
+			return new CANNON.ConvexPolyhedron(verts, faces);
+        
+		}
 
-        catch(e) {
-            return SCOPE.createBoxShape(mesh);
-        }
-
+        catch( e ) {
+        
+			return SCOPE.createBoxShape(mesh);
+        
+		}
 
     };
 
     //Initialize body
-    if(mesh) {
-        SCOPE.loadMesh(mesh, options);
-    }
+    if( mesh ) {
+        
+		SCOPE.loadMesh(mesh, options);
+    
+	}
 
 };
 

@@ -104,9 +104,11 @@ THREE.Physics = function(options) {
     //and uses cannon built in rigid body detection
     this.addObject = function( mesh, options ) {
 
-        if(!(mesh instanceof THREE.Object3D)) {
+        if( !( mesh instanceof THREE.Object3D ) ) {
+
             throw new Error("Parameter not THREE.Object3D");
-        }
+        
+		}
 
         //Create cannon body
         var physicalBody = new THREE.PhysicalBody(mesh, options);

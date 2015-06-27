@@ -16,7 +16,6 @@
 
     "dependencies": {
         "node-static": "*", 
-	"node-webkit-builder": "*",
         "cfcompile": "https://github.com/chuckfairy/cfcompile"
     },
 
