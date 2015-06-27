@@ -94,53 +94,8 @@ directionallight.shadowDarkness = .8;
 //directionallight.shadowCameraVisible = true;
 
 
-//Create main box mesh
-var boxgeo = new THREE.BoxGeometry(20,20,20);
-var boxMesh = new THREE.Mesh(boxgeo, bluePhong);
-boxMesh.position.set( 40, 20, -40 );
-boxMesh.startingPosition = boxMesh.position.clone();
-boxMesh.castShadow = boxMesh.receiveShadow = true;
-
-var boxMesh2 = boxMesh.clone();
-boxMesh2.position.x = 0;
-boxMesh2.startingPosition = boxMesh2.position.clone();
-
-var boxMesh3 = boxMesh.clone();
-boxMesh3.position.x = -40;
-boxMesh3.startingPosition = boxMesh3.position.clone();
-
-
-//set physics mass of 1kg
-boxMesh.mass = boxMesh2.mass = boxMesh3.mass = 1;
-
-boxMesh.physical = new THREE.PhysicalMaterial({
-
-	name: "box1",
-	friction: .1,
-
-});
-
-boxMesh2.physical = new THREE.PhysicalMaterial({ name: "box2" });
-
-boxMesh3.physical = new THREE.PhysicalMaterial({
-
-	name: "box3",
-	fricition: 1
-
-});
-
-
-
-var boxes = [ boxMesh, boxMesh2, boxMesh3 ];
-
-//Set starting quarternion
-var startingQuarternion = boxMesh.quaternion.clone();
-
 //Add box and light
 world.addMesh( plane );
-world.addMesh( boxMesh );
-world.addMesh( boxMesh2 );
-world.addMesh( boxMesh3 );
 world.addLight( directionallight );
 
 //Create event handler for render before
@@ -155,29 +110,87 @@ world.on("before-render", function(event) {
 });
 
 
-//create sample box falling
-var boxThrow = function() {
+//Init boxes with different materils varying friction
 
-	var numberOfBoxes = boxes.length;
+initBoxes();
 
-	for( var i = 0; i < numberOfBoxes; i++ ) {
+function initBoxes() {
 
-		var box = boxes[i];
+	console.log( plane );
 
-		box.body.wakeUp();
+	//Create main box mesh
+	var boxgeo = new THREE.BoxGeometry(20,20,20);
+	var boxMesh = new THREE.Mesh(boxgeo, bluePhong);
+	boxMesh.position.set( 40, 20, -40 );
+	boxMesh.startingPosition = boxMesh.position.clone();
+	boxMesh.castShadow = boxMesh.receiveShadow = true;
 
-		box.body.position.copy( box.startingPosition );
-		box.body.quaternion.copy( startingQuarternion );
+	var boxMesh2 = boxMesh.clone();
+	boxMesh2.position.x = 0;
+	boxMesh2.startingPosition = boxMesh2.position.clone();
 
-		box.body.velocity.set( 0, 5, 30 );
+	var boxMesh3 = boxMesh.clone();
+	boxMesh3.position.x = -40;
+	boxMesh3.startingPosition = boxMesh3.position.clone();
+
+
+	//set physics mass of 1kg
+	boxMesh.mass = boxMesh2.mass = boxMesh3.mass = 1;
+
+	boxMesh.physical = new THREE.PhysicalMaterial({
+
+		name: "box1",
+		friction: .1,
+
+	});
+
+	boxMesh2.physical = new THREE.PhysicalMaterial({ name: "box2" });
+
+	boxMesh3.physical = new THREE.PhysicalMaterial({
+
+		name: "box3",
+		fricition: 1
+
+	});
+
+
+	var boxes = [ boxMesh, boxMesh2, boxMesh3 ];
+
+	//Set starting quarternion
+	var startingQuarternion = boxMesh.quaternion.clone();
 	
-	}	
+	world.addMesh( boxMesh );
+	world.addMesh( boxMesh2 );
+	world.addMesh( boxMesh3 );
+	
 
-};
+	//create sample box falling
+	var boxThrow = function() {
 
-boxThrow();
+		var numberOfBoxes = boxes.length;
 
-world.LaunchWorld();
+		for( var i = 0; i < numberOfBoxes; i++ ) {
+
+			var box = boxes[i];
+
+			box.body.wakeUp();
+
+			box.body.position.copy( box.startingPosition );
+			box.body.quaternion.copy( startingQuarternion );
+
+			box.body.velocity.set( 0, 5, 30 );
+		
+		}	
+
+	};
+
+	boxThrow();
+
+	world.LaunchWorld();
+
+}
+
+
 
 </script>
 

@@ -8,15 +8,17 @@ THREE.PhysicalMaterial = function( options ) {
 
 	CANNON.Material.call( scope, options.name || "ground" );
 		
+	var defaults = scope.contactAttributes;
+
 	//Main properties
 	scope.contactAttributes = {
 	
-		friction: options.friction || 0.4,
-		restitution: options.restitution || 0.3,
-		contactEquationStiffness: options.stiffness || 1e8,
-		contactEquationRelaxtion: options.relaxation || 3,
-		frictionEquationStiffness: options.stiffness || 1e8,
-		frictionEquationRegularizationTime: options.regularization || 3
+		friction: options.friction || defaults.friction,
+		restitution: options.restitution || defaults.restitution,
+		contactEquationStiffness: options.stiffness || defaults.contactEquationStiffness,
+		contactEquationRelaxtion: options.relaxation || defaults.contactEquationRelaxation,
+		frictionEquationStiffness: options.stiffness || defaults.frictionEquationStiffness,
+		frictionEquationRegularizationTime: options.regularization || deafults.frictionEquationRegularizationTime
 
 	};
 
@@ -46,3 +48,6 @@ THREE.PhysicalMaterial.prototype = {
 	}	
 	
 };
+
+THREE.PhysicalDefaultMaterial = new THREE.PhysicalMaterial({ name: "default" });
+

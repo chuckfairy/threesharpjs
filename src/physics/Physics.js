@@ -1,6 +1,6 @@
 //Basic THREE.js Physics with CANNON.js
 //By Chuck
-THREE.Physics = function(options) {
+THREE.Physics = function( options ) {
 
     var SCOPE = this;
 
@@ -25,11 +25,22 @@ THREE.Physics = function(options) {
     //Cannon physical elements
     var CANNON_BODIES = {};
 
+	//Bodies subject to gravity
+	var MASS_BODIES = {};
+
+	//Bodies with mass of 0
+	var STATIC_BODIES = {};
+
+	var options = typeof( options ) === "object" ? options : {};
+
 
     /********************Properties********************/
 
     //Frames per second
-    this.fps = 20;
+    this.fps = options.fps ||  20;
+
+	//Update static objects. Bodies with mass of 0
+	this.updateStatic = !!options.updateStatic || true;
 
     /********************World get and setters********************/
 
@@ -43,13 +54,15 @@ THREE.Physics = function(options) {
 
     //Initialization
     this.init = function(options) {
-        //Set gravity
-        if(!options.gravity) {
-            options.gravity = new THREE.Vector3(0, -9.8, 0);
-        }
 
-        SCOPE.setGravity(options.gravity);
-    };
+		//Set gravity
+        if( !options.gravity ) {
+
+			SCOPE.setGravity( options.gravity );
+
+		}
+
+	};
 
     //Update the thru a time step
     this.update = function( delta ) {
@@ -67,23 +80,43 @@ THREE.Physics = function(options) {
 
     //Update positions and rotation of objects
     this.updateBodies = function() {
-        var ol = OBJECTS.length;
 
-        for( var uuid in OBJECTS ) {
-            var objects = OBJECTS[uuid];
+		var bodies = this.updateStatic ? OBJECTS : MASS_BODIES;
+
+		var ol = bodies.length;
+
+        for( var uuid in bodies ) {
+            
+			var objects = bodies[uuid];
             var cannon = objects.cannon;
             var mesh = objects.object;
-            if(cannon.position === mesh.position) {
-                console.log("no change");
-                continue;
-            }
 
-            mesh.position.copy(cannon.position);
-            mesh.quaternion.copy(cannon.quaternion);
+			//dont update on equality
+            if( mesh.position.equals( cannon.position ) ) { continue; }
+
+            mesh.position.copy( cannon.position );
+            mesh.quaternion.copy( cannon.quaternion );
 
         }
 
     };
+
+
+	//Update static bodies
+	this.updateStatics = function() {
+
+		for( var uuid in STATIC_BODIES ) {
+
+			var objects = STATIC_BODIES[uuid];
+			var cannon = objects.cannon;
+			var mesh = objects.object;
+
+            mesh.position.copy( cannon.position );
+            mesh.quaternion.copy( cannon.quaternion );
+
+		}	
+
+	};
 
     //Get cannon world for adding stuff to it
     this.getWorld = function() { return WORLD; };
@@ -92,10 +125,13 @@ THREE.Physics = function(options) {
     this.getObjects = function() { return OBJECTS; };
 
     //Change gravity
-    this.setGravity = function(vector3) {
-        if(!(vector3 instanceof THREE.Vector3)) {
+    this.setGravity = function( vector3 ) {
+
+        if( !( vector3 instanceof THREE.Vector3 ) ) {
+
             throw new Error("Parameter not THREE.Vector3");
-        }
+        
+		}
 
         WORLD.gravity.set(vector3.x, vector3.y, vector3.z);
     };
@@ -124,23 +160,33 @@ THREE.Physics = function(options) {
             cannon: cannonBody
         };
 
+		if( mesh.mass|0 === 0 ) {
+
+			STATIC_BODIES[uuid] = OBJECTS[uuid];
+
+		} else {
+
+			MASS_BODIES[uuid] = OBJECTS[uuid];
+
+		}
+
         WORLD.add(cannonBody);
 
     };
 
 
     //Remove object from simulation
-    this.removeObject = function(uuid) {
+    this.removeObject = function( uuid ) {
 
         var rObject = OBJECTS[uuid];
 
         //Throw a warning
-        if(!rObject) {
+        if( !rObject ) {
             console.log("Object not found with uuid " + uuid);
             return;
         }
 
-        WORLD.remove(rObject.cannon);
+        WORLD.remove( rObject.cannon );
         delete OBJECTS[uuid];
 
     };
@@ -153,10 +199,7 @@ THREE.Physics = function(options) {
     };
 
 
-    //Initialize
-    //Set init options
-    options = options || {};
-    SCOPE.init(options);
+	SCOPE.init( options );
 
 };
 
