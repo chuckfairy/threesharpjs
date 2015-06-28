@@ -54,6 +54,10 @@ THREE.PhysicalBody = function(mesh, options) {
 
 			bodyOptions.material = new THREE.PhysicalMaterial( options.material );	
 
+		} else {
+
+			bodyOptions.material = THREE.PhysicalDefaultMaterial;
+
 		}
 
         BODY = new CANNON.Body( bodyOptions );

@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 <link rel="stylesheet" href="../_css/demo.css">
 
-<script src="../../build/gamethree.min.js"></script>
+<script src="../../build/threes.min.js"></script>
 </head>
 
 <body>
@@ -46,8 +46,8 @@ var controls = new THREE.OrbitControls(camera);
 
 //Physics set using THREE.Physics object
 var physics = new THREE.Physics({
-    gravity: new THREE.Vector3(0, -9.8, 0)
-    //boundries: new THREE.Vector4(50, 50, -50, -50)
+    gravity: new THREE.Vector3(0, -9.8, 0),
+	updateStatic: false
 });
 
 //Set Frames per second
@@ -64,7 +64,7 @@ world.on("add-mesh", function(event) {
     var object = event.object;
 
     //add object to physics world
-    physics.addObject( object, object.physical );
+	physics.addObject( object, { material:  object.physical } );
 
 });
 
@@ -116,8 +116,6 @@ initBoxes();
 
 function initBoxes() {
 
-	console.log( plane );
-
 	//Create main box mesh
 	var boxgeo = new THREE.BoxGeometry(20,20,20);
 	var boxMesh = new THREE.Mesh(boxgeo, bluePhong);
@@ -138,18 +136,26 @@ function initBoxes() {
 	boxMesh.mass = boxMesh2.mass = boxMesh3.mass = 1;
 
 	boxMesh.physical = new THREE.PhysicalMaterial({
-
+	
 		name: "box1",
-		friction: .1,
+		friction: .08,
 
 	});
 
-	boxMesh2.physical = new THREE.PhysicalMaterial({ name: "box2" });
+	boxMesh2.physical = new THREE.PhysicalMaterial({ 
+		
+		name: "box2", 
+		restitution: 0.9,
+		frictionEquationRegularizationTime: 1
+
+	});
 
 	boxMesh3.physical = new THREE.PhysicalMaterial({
 
 		name: "box3",
-		fricition: 1
+		friction: 0.01,
+		restitution: 0.0,
+		stiffness: 1e10
 
 	});
 
@@ -162,7 +168,20 @@ function initBoxes() {
 	world.addMesh( boxMesh );
 	world.addMesh( boxMesh2 );
 	world.addMesh( boxMesh3 );
-	
+
+
+
+	physics.world.addContactMaterial( 
+		boxMesh.body.material.createContact( plane.body.material ) 
+	);
+
+	physics.world.addContactMaterial(
+		boxMesh2.body.material.createContact( plane.body.material )
+	);
+
+	physics.world.addContactMaterial(
+		boxMesh3.body.material.createContact( plane.body.material )
+	);
 
 	//create sample box falling
 	var boxThrow = function() {
@@ -184,13 +203,13 @@ function initBoxes() {
 
 	};
 
+	physicGUI.addScene( "Box Throw", boxThrow ); 
+
 	boxThrow();
 
 	world.LaunchWorld();
 
 }
-
-
 
 </script>
 

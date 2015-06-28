@@ -1,6 +1,8 @@
 {
     "type": "js",
 
+	"header": "//Threes, threejs game and animation framework\n",
+
     "compile": [
         "lib/three.min.js", "lib/cannon.min.js", "lib/cannon.three.js",
         "threesharp.js", "lib/Tween.js", "loaders/", "3d/", "game/",

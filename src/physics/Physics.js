@@ -36,6 +36,9 @@ THREE.Physics = function( options ) {
 
     /********************Properties********************/
 
+	//CANNON world
+	SCOPE.world = WORLD;
+
     //Frames per second
     this.fps = options.fps ||  20;
 

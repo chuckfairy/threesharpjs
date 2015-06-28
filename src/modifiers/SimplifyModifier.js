@@ -470,4 +470,4 @@ THREE.SimplifyModifier = function() {
 
 
 	};
-})()
+})();

@@ -7,20 +7,17 @@ THREE.PhysicalMaterial = function( options ) {
 	var scope = this;
 
 	CANNON.Material.call( scope, options.name || "ground" );
-		
-	var defaults = scope.contactAttributes;
 
-	//Main properties
-	scope.contactAttributes = {
-	
-		friction: options.friction || defaults.friction,
-		restitution: options.restitution || defaults.restitution,
-		contactEquationStiffness: options.stiffness || defaults.contactEquationStiffness,
-		contactEquationRelaxtion: options.relaxation || defaults.contactEquationRelaxation,
-		frictionEquationStiffness: options.stiffness || defaults.frictionEquationStiffness,
-		frictionEquationRegularizationTime: options.regularization || deafults.frictionEquationRegularizationTime
+	scope.contactAttributes = {};
 
-	};
+	var defaults = scope.defaultAttributes;
+
+	for( var name in defaults ) {
+
+		scope.contactAttributes[name] = typeof( options[name] ) !== "undefined" ?
+			options[name] : defaults[name];	
+
+	}
 
 };
 
@@ -28,9 +25,11 @@ THREE.PhysicalMaterial.prototype = {
 
 	constructor: THREE.PhysicalMaterial,
 
-	contactAttributes: {
+	contactAttributes: {},
+		
+	defaultAttributes: {
 			
-		friction: 0.4,
+		friction: 1,
 		restitution: 0.3,
 		contactEquationStiffness: 1e8,
 		contactEquationRelaxtion: 3,
@@ -39,11 +38,13 @@ THREE.PhysicalMaterial.prototype = {
 		
 	},
 
+	
+
 	createContact: function( contact, options ) {
 	
 		var options = typeof( options ) === "object" ? options : {};
 
-		return new CANNON.ContactMaterial( this, slipperyMaterial, this.contactAttributes );
+		return new CANNON.ContactMaterial( this, contact, this.contactAttributes );
 		
 	}	
 	
