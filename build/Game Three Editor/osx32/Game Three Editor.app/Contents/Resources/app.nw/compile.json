@@ -1,8 +1,0 @@
-{
-    "type": "node-webkit",
-    "appName": "Editor",
-    "appVersion": "1.0.0",
-    "buildDir": "./build",
-    "cacheDir": "./cache",
-    "macZip": "true"
-}
