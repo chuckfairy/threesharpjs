@@ -80,7 +80,7 @@ plane.receiveShadow = true;
 
 //Create light
 var directionallight = new THREE.DirectionalLight(0xfffff0, .8, 20, 400);
-directionallight.position.set(60, 20, -10);
+directionallight.position.set(60, 40, -10);
 directionallight.target = plane;
 
 directionallight.castShadow = true;
@@ -158,7 +158,6 @@ function initBoxes() {
 		stiffness: 1e10
 
 	});
-
 
 	var boxes = [ boxMesh, boxMesh2, boxMesh3 ];
 
