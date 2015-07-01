@@ -6,7 +6,7 @@
 
     "compile": [
         "lib/three.min.js", "lib/cannon.min.js", "lib/cannon.three.js",
-        "threesharp.js","loaders/", "3d/", "game/",
+        "lib/Tween.js", "threesharp.js","loaders/", "3d/", "game/",
         "animation/", "controls/", "exporters/",
         "physics/", "postprocessing/", "rendering/",
         "shaders/", "polyfills/"
