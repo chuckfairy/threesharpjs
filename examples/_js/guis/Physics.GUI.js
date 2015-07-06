@@ -97,7 +97,7 @@ THREE.Physics.GUI = function(physicsObj) {
 
         //Set timestep to 0 to start off
         SCOPE[name] = function() {
-            PHYSICS.setTimestep(0);
+            //PHYSICS.setTimestep(0);
             sceneFunc();
         };
 

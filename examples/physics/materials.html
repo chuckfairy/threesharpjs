@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Three#js | World Basics</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+<link rel="stylesheet" href="../_css/demo.css">
+
+<script src="../../build/threes.min.js"></script>
+</head>
+
+<body>
+
+<!--Webgl wrapper-->
+<div id="webGL"></div>
+
+<!--Info box for examples-->
+<div id="infoBox">
+    <h2>Gravity simulation Game Three</h2>
+</div>
+
+<!--DAT GUI div-->
+<div id="gui"></div>
+
+<!-- Dev testing -->
+<script src="../../src/physics/Physics.js"></script>
+<script src="../../src/physics/PhysicalBody.js"></script>
+<script src="../../src/physics/PhysicalMaterial.js"></script>
+
+<!--Main js-->
+<script src="../_js/lib/dat.gui.min.js"></script>
+<script src="../_js/guis/Physics.GUI.js"></script>
+<script>
+
+//Create world and setup
+var world = new THREE.World();
+world.init("webGL", {renderType: "webgl"});
+world.useShadows(true);
+
+//Get and move camera default is at 0,0,0
+var camera = world.getCamera();
+camera.position.set(250, 45, -50);
+
+var controls = new THREE.OrbitControls(camera);
+
+//Physics set using THREE.Physics object
+var physics = new THREE.Physics({
+    gravity: new THREE.Vector3(0, -9.8, 0),
+	updateStatic: false
+});
+
+//Set Frames per second
+physics.fps = 30;
+
+//Set GUI see _js/guis/Physics.GUI.js
+var physicGUI = new THREE.Physics.GUI(physics);
+physicGUI.appendToElement("gui");
+
+//Create event handler for physics object add
+world.on("add-mesh", function(event) {
+
+    //Object set to newly created THREE.Object3D
+    var object = event.object;
+
+    //add object to physics world
+	physics.addObject( object, { material:  object.physical } );
+
+});
+
+//create geometries with built in colors
+var greyLambert = new THREE.MeshLambertMaterial({ color: 0xffffff, overdraw: true });
+var bluePhong = new THREE.MeshLambertMaterial({ color: 0x9EB5FF, overdraw: true, });
+
+//Create a floor
+var planegeo = new THREE.BoxGeometry(230, 5, 230, 4, 4 );
+var plane = new THREE.Mesh(planegeo, greyLambert);
+plane.material.color.setHex(0xffffff);
+plane.receiveShadow = true;
+
+//Create light
+var directionallight = new THREE.DirectionalLight(0xfffff0, .8, 20, 400);
+directionallight.position.set(60, 40, -10);
+directionallight.target = plane;
+
+directionallight.castShadow = true;
+directionallight.shadowBias = .0001;
+directionallight.shadowCameraNear = 5;
+directionallight.shadowCameraFar = 230;
+directionallight.shadowCameraFov = 80;
+directionallight.shadowMapHeight = 4096; //2048
+directionallight.shadowMapWidth = 4096;
+directionallight.shadowDarkness = .8;
+//directionallight.shadowCameraVisible = true;
+
+
+//Add box and light
+world.addMesh( plane );
+world.addLight( directionallight );
+
+//Create event handler for render before
+world.on("before-render", function(event) {
+
+    //Get delta of seconds
+    var delta = event.delta;
+
+    //Update physics and change objects
+    physics.update(delta);
+
+});
+
+
+//Init boxes with different materils varying friction
+
+initBoxes();
+
+function initBoxes() {
+
+	//Create main box mesh
+	var boxgeo = new THREE.BoxGeometry(20,20,20);
+	var boxMesh = new THREE.Mesh(boxgeo, bluePhong);
+	boxMesh.position.set( 40, 20, -40 );
+	boxMesh.startingPosition = boxMesh.position.clone();
+	boxMesh.castShadow = boxMesh.receiveShadow = true;
+
+	var boxMesh2 = boxMesh.clone();
+	boxMesh2.position.x = 0;
+	boxMesh2.startingPosition = boxMesh2.position.clone();
+
+	var boxMesh3 = boxMesh.clone();
+	boxMesh3.position.x = -40;
+	boxMesh3.startingPosition = boxMesh3.position.clone();
+
+
+	//set physics mass of 1kg
+	boxMesh.mass = boxMesh2.mass = boxMesh3.mass = 1;
+
+	boxMesh.physical = new THREE.PhysicalMaterial({
+	
+		name: "box1",
+		friction: .08,
+
+	});
+
+	boxMesh2.physical = new THREE.PhysicalMaterial({ 
+		
+		name: "box2", 
+		restitution: 0.9,
+		frictionEquationRegularizationTime: 1
+
+	});
+
+	boxMesh3.physical = new THREE.PhysicalMaterial({
+
+		name: "box3",
+		friction: 0.01,
+		restitution: 0.0,
+		stiffness: 1e10
+
+	});
+
+	var boxes = [ boxMesh, boxMesh2, boxMesh3 ];
+
+	//Set starting quarternion
+	var startingQuarternion = boxMesh.quaternion.clone();
+	
+	world.addMesh( boxMesh );
+	world.addMesh( boxMesh2 );
+	world.addMesh( boxMesh3 );
+
+
+
+	physics.world.addContactMaterial( 
+		boxMesh.body.material.createContact( plane.body.material ) 
+	);
+
+	physics.world.addContactMaterial(
+		boxMesh2.body.material.createContact( plane.body.material )
+	);
+
+	physics.world.addContactMaterial(
+		boxMesh3.body.material.createContact( plane.body.material )
+	);
+
+	//create sample box falling
+	var boxThrow = function() {
+
+		var numberOfBoxes = boxes.length;
+
+		for( var i = 0; i < numberOfBoxes; i++ ) {
+
+			var box = boxes[i];
+
+			box.body.wakeUp();
+
+			box.body.position.copy( box.startingPosition );
+			box.body.quaternion.copy( startingQuarternion );
+
+			box.body.velocity.set( 0, 5, 30 );
+		
+		}	
+
+	};
+
+	physicGUI.addScene( "Box Throw", boxThrow ); 
+
+	boxThrow();
+
+	world.LaunchWorld();
+
+}
+
+</script>
+
+</body>
+</html>

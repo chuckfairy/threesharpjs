@@ -66,6 +66,8 @@ THREE.World = function() {
         options = options || {};
         var renderType = options.renderType || "webgl";
 
+        SCOPE.clearColor = options.clearColor || 0x000000;
+
         //Setup rendering and screen
         SCOPE.setRenderType(renderType);
 
@@ -262,6 +264,8 @@ THREE.World = function() {
         var renderOptions = options || renderObj.defaults;
         var renderFunc = renderObj.renderer;
         var renderer = new THREE[renderFunc](renderOptions);
+
+        renderer.setClearColor( SCOPE.clearColor );
 
         SCOPE.setRenderer(renderer);
 

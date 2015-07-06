@@ -1,0 +1,91 @@
+#!/usr/bin/env node
+
+//Load server
+var COMPILER = require("cfcompile");
+var FS = COMPILER.getFS();
+
+//command arguments
+var args = process.argv.slice(2);
+var firstArg = args[0];
+var commandOptions = args.slice(1);
+
+function isOneOption() {
+    if(commandOptions[0]) {return true;}
+    else {return false;}
+}
+
+
+switch(firstArg) {
+    case "compile": compileCommand(); break;
+    case "help": console.log(commandHelp()); break;
+    case "server": serverCommands(); break;
+    case "test": serverTest(); break;
+    case "watch": watchCommand(); break;
+    default: console.log("No command given\n" + commandHelp()); break;
+}
+
+//Compile build and apps
+function compileCommand() {
+    if(!isOneOption() || !commandOptions[0]) {
+        console.log("Specify a compile folder and build location");
+    }
+
+    //Build Game three source
+    if(commandOptions[0] === "src") {
+        //Compile js build
+        COMPILER.compileFromConfigFile(__dirname + "/src/compile.json", function(data, err) {
+            //Log errors
+            if(err) {console.log(err);}
+
+            //Write the build file
+            console.log("\nWriting new file in /build/threes.min.js");
+            FS.writeFile(__dirname + "/build/threes.min.js", data, function(err) {
+                if(err) {console.log(err);}
+            });
+        });
+    }
+
+    //Compile editor app
+    if(commandOptions[0] === "app") {
+        COMPILER.compileFromConfigFile(__dirname + "/app/compile.json", function() {
+
+        });
+    }
+};
+
+//Helper text
+function commandHelp() {
+    return "Commands compile, help, server, test";
+};
+
+//server commands like startup and shut down
+function serverCommands() {
+    if(!isOneOption()) {
+        console.log("Option not placed for server command. [startup, update, stop]");
+        return false;
+    }
+    switch(commandOptions[0]) {
+        case "startup": SERVER.startupServer(); break;
+        case "update": break;
+        case "stop": SERVER.serverStop(); break;
+    }
+};
+
+//Testing to see if server can go up
+function serverTest() {
+
+
+};
+
+//Watch command for routine
+function watchCommand() {
+    console.log("WATCHING");
+
+    //Build Game three source
+    if(commandOptions[0] === "src") {
+        COMPILER.watchCompile(__dirname + "/src/compile.json", function() {
+            console.log("FINISHED COMPILING NOW WATCHING");
+        });
+    }
+
+}
