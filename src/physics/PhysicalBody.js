@@ -7,7 +7,6 @@ THREE.PhysicalBody = function(mesh, options) {
     var BODY;
     var SHAPE;
     var CHILDREN;
-    var SURFACE;
 
     //Publics
     //Load a mesh by
@@ -63,20 +62,13 @@ THREE.PhysicalBody = function(mesh, options) {
 
 	};
 
-    //add a child object to mesh
-    //uses position from mesh
-    this.addChild = function( mesh, options ) {
 
-    };
-
-    //Get CANNON Body
+	//Get CANNON Body
     this.getBody = function() { return BODY; };
 
     //Get CANNON Shape
     this.getShape = function() { return SHAPE; };
 
-    //Get CANNON Surface material
-    this.getSurface = function() { return SURFACE; };
 
 	/********************Cannon body creation********************/
 

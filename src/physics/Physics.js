@@ -2,11 +2,11 @@
 //By Chuck
 THREE.Physics = function( options ) {
 
-    var SCOPE = this;
+    var scope = this;
 
     var WORLD = new CANNON.World();
     WORLD.gravity.set( 0, -9.8, 0 );
-    WORLD.broadphase = new CANNON.SAPBroadphase(WORLD);
+    WORLD.broadphase = new CANNON.SAPBroadphase( WORLD );
     WORLD.solver.iterations = 10;
     //WORLD.solver.tolerance = 0;
 
@@ -37,19 +37,19 @@ THREE.Physics = function( options ) {
     /********************Properties********************/
 
 	//CANNON world
-	SCOPE.world = WORLD;
+	scope.world = WORLD;
 
     //Frames per second
-    this.fps = options.fps ||  20;
+    scope.fps = options.fps ||  20;
 
 	//Update static objects. Bodies with mass of 0
-	this.updateStatic = typeof( options.updateStatic ) !== "undefined" ? 
+	scope.updateStatic = typeof( options.updateStatic ) !== "undefined" ? 
 		!!options.updateStatic :  true;
 
     /********************World get and setters********************/
 
     //Get an object by mesh uuid
-    this.getObject = function(uuid) {
+    scope.getObject = function(uuid) {
         return OBJECTS[uuid] || false;
     };
 
@@ -57,35 +57,35 @@ THREE.Physics = function( options ) {
     /********************World Creation and use********************/
 
     //Initialization
-    this.init = function(options) {
+    scope.init = function(options) {
 
 		//Set gravity
         if( !options.gravity ) {
 
-			SCOPE.setGravity( options.gravity );
+			scope.setGravity( options.gravity );
 
 		}
 
 	};
 
     //Update the thru a time step
-    this.update = function( delta ) {
+    scope.update = function( delta ) {
 
-        this.dispatch({
+        scope.dispatch({
             type: 'before-update',
             delta: delta
         });
 
         //TIMESTEP += delta * ;
-        WORLD.step( 1 / SCOPE.fps );
-        SCOPE.updateBodies();
+        WORLD.step( 1 / scope.fps );
+        scope.updateBodies();
 
     };
 
     //Update positions and rotation of objects
-    this.updateBodies = function() {
+    scope.updateBodies = function() {
 
-		var bodies = this.updateStatic ? OBJECTS : MASS_BODIES;
+		var bodies = scope.updateStatic ? OBJECTS : MASS_BODIES;
 
 		var ol = bodies.length;
 
@@ -107,7 +107,7 @@ THREE.Physics = function( options ) {
 
 
 	//Update static bodies
-	this.updateStatics = function() {
+	scope.updateStatics = function() {
 
 		for( var uuid in STATIC_BODIES ) {
 
@@ -123,13 +123,13 @@ THREE.Physics = function( options ) {
 	};
 
     //Get cannon world for adding stuff to it
-    this.getWorld = function() { return WORLD; };
+    scope.getWorld = function() { return WORLD; };
 
     //Get world objects
-    this.getObjects = function() { return OBJECTS; };
+    scope.getObjects = function() { return OBJECTS; };
 
     //Change gravity
-    this.setGravity = function( vector3 ) {
+    scope.setGravity = function( vector3 ) {
 
         if( !( vector3 instanceof THREE.Vector3 ) ) {
 
@@ -142,7 +142,7 @@ THREE.Physics = function( options ) {
 
     //add an object to physical world
     //and uses cannon built in rigid body detection
-    this.addObject = function( mesh, options ) {
+    scope.addObject = function( mesh, options ) {
 
         if( !( mesh instanceof THREE.Object3D ) ) {
 
@@ -179,8 +179,27 @@ THREE.Physics = function( options ) {
     };
 
 
+	//Add objects from array
+	scope.addObjects = function ( array, options ) {
+		
+		if( typeof( array ) !== "object" ) {
+
+			throw new Error( "Add objects requires an array of meshes");
+
+		}
+
+		var al = array.length;
+
+		for( var i = 0; i < al; i ++ ) {
+
+			scope.addObject( array[i], options );
+
+		}	
+	
+	}
+
     //Remove object from simulation
-    this.removeObject = function( uuid ) {
+    scope.removeObject = function( uuid ) {
 
         var rObject = OBJECTS[uuid];
 
@@ -195,15 +214,41 @@ THREE.Physics = function( options ) {
 
     };
 
-    //Clear world bodies
-    this.clearWorld = function() {
+    
+	//Clear world bodies
+    scope.clearWorld = function() {
 
         WORLD.bodies = [];
 
     };
 
+	
+	//Clear all body foces
+	scope.clearForces = function() { WORLD.clearForces(); };
 
-	SCOPE.init( options );
+
+	//clear movment of a physical body
+	scope.clearMovement = function( body ) {
+
+		if( typeof( body ) === "number" ) { 
+
+			body = scope.getObject( body );
+
+		}
+
+		if( ! ( body instanceof CANNON.Body ) ) {
+
+			console.warn( "Clear movement requires a cannon body" );
+			return;
+
+		}
+
+        body.angularVelocity.set( 0, 0, 0 );
+        body.velocity.set( 0, 0, 0 );
+
+	};
+
+	scope.init( options );
 
 };
 

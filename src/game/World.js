@@ -2,10 +2,10 @@
 //By Chuck
 THREE.World = function() {
 
-    var SCOPE = this;
+    var scope = this;
 
     //World physics
-    var OBJECTS = [ ];
+    var OBJECTS = [];
 
     //Items, vehicles, and game action interactions
     var UPDATING = false;
@@ -41,20 +41,20 @@ THREE.World = function() {
     /********************Public Properties********************/
 
     //Current camera index
-    this.cameraIndex = 0;
+    scope.cameraIndex = 0;
 
     //Render screen height and width
-    this.screenWidth = 0;
-    this.screenHeight = 0;
+    scope.screenWidth = 0;
+    scope.screenHeight = 0;
 
     //Camera autoAspect
-    this.autoAspect = true;
+    scope.autoAspect = true;
 
 
     /********************World Webgl + Render globals********************/
 
     //Initialize Webgl at dom element ID
-    this.init = function(containerID, options) {
+    scope.init = function(containerID, options) {
 
         //Add webgl to container id'd webGL
         CONTAINER = document.getElementById(containerID);
@@ -66,41 +66,43 @@ THREE.World = function() {
         options = options || {};
         var renderType = options.renderType || "webgl";
 
-        SCOPE.clearColor = options.clearColor || 0x000000;
+        scope.clearColor = options.clearColor || 0x000000;
 
         //Setup rendering and screen
-        SCOPE.setRenderType(renderType);
+        scope.setRenderType(renderType);
 
-        window.addEventListener("resize", SCOPE.screenResize, false);
+        window.addEventListener("resize", scope.screenResize, false);
 
     };
 
 
     //Get active camera
-    this.getCamera = function() { return CAMERA; };
+    scope.getCamera = function() { return CAMERA; };
 
     //Get Renderer
-    this.getRenderer = function() { return RENDERER; };
+    scope.getRenderer = function() { return RENDERER; };
 
     //Get active scene
-    this.getScene = function() { return SCENE; };
+    scope.getScene = function() { return SCENE; };
 
 
     /********************Screen sizing********************/
 
+
     // Set three scene
-    this.setScene = function( scene ) {
+    scope.setScene = function( scene ) {
 
         SCENE = scene;
 
     };
 
+
     //Remove object from scene
-    this.removeObject = function( object3d ) {
+    scope.removeObject = function( object3d ) {
 
         SCENE.remove( object3d );
 
-        SCOPE.dispatch({
+        scope.dispatch({
             type: "remove-mesh",
             uuid: object3d.uuid,
             object: object3d
@@ -115,7 +117,7 @@ THREE.World = function() {
 
     // set screen sizing string [window, container] or x, y
 
-    this.setScreenSize = function(type) {
+    scope.setScreenSize = function(type) {
 
         if(type === SCREEN_SIZE) {return;}
 
@@ -135,13 +137,13 @@ THREE.World = function() {
 
         }
 
-        SCOPE.screenResize();
+        scope.screenResize();
 
     };
 
     //Get screen size by type
 
-    this.getScreenSize = function() {
+    scope.getScreenSize = function() {
 
         var size = new THREE.Vector2;
 
@@ -153,7 +155,7 @@ THREE.World = function() {
                 break;
 
             case "container":
-                size = SCOPE.getContainerSize();
+                size = scope.getContainerSize();
                 break;
 
             default:
@@ -167,7 +169,7 @@ THREE.World = function() {
 
     //get size of html container
 
-    this.getContainerSize = function() {
+    scope.getContainerSize = function() {
 
         return {
             x: CONTAINER.clientWidth,
@@ -178,24 +180,24 @@ THREE.World = function() {
 
     //Screen resize changes camera aspect and render
 
-    this.screenResize = function() {
+    scope.screenResize = function() {
 
-        var screenSize = SCOPE.getScreenSize();
+        var screenSize = scope.getScreenSize();
         var x = screenSize.x,
             y = screenSize.y;
 
-        SCOPE.screenWidth  = x;
-        SCOPE.screenHeight = y;
+        scope.screenWidth  = x;
+        scope.screenHeight = y;
 
         //Check autoAspect and adjust x / y
-        if(SCOPE.autoAspect) {
-            SCOPE.cameraAspect( x / y );
+        if(scope.autoAspect) {
+            scope.cameraAspect( x / y );
         }
 
         //Set canvas to size
         RENDERER.setSize( x, y );
 
-        SCOPE.dispatch({
+        scope.dispatch({
             type: "screen-resize",
             size: screenSize
         });
@@ -205,14 +207,14 @@ THREE.World = function() {
 
     //Change frame quality
 
-    this.screenQuality = function(quality){
+    scope.screenQuality = function(quality){
 
     };
 
 
     //Set camera aspect default is window / height
 
-    this.cameraAspect = function(aspect) {
+    scope.cameraAspect = function(aspect) {
 
         CAMERA.aspect = aspect - 0;
         CAMERA.updateProjectionMatrix();
@@ -222,7 +224,7 @@ THREE.World = function() {
     /********************Render Post Processing********************/
 
     //Render to screen
-    this.render = function(delta) {
+    scope.render = function(delta) {
 
         var evt = {
             start: Date.now(),
@@ -231,14 +233,14 @@ THREE.World = function() {
 
         var before = evt;
         before.type = "before-render";
-        SCOPE.dispatch(before);
+        scope.dispatch(before);
 
         RENDERER.render(SCENE, CAMERA);
 
     };
 
     //Set renerer and change composer
-    this.setRenderer = function(renderer) {
+    scope.setRenderer = function(renderer) {
 
         //Remove old
         var old = RENDERER;
@@ -248,12 +250,12 @@ THREE.World = function() {
 
         CONTAINER.appendChild(RENDERER.domElement);
 
-        SCOPE.screenResize();
+        scope.screenResize();
 
     };
 
     //Change Rendering type
-    this.setRenderType = function(renderType, options) {
+    scope.setRenderType = function(renderType, options) {
 
         if(!THREE.RenderTypes[renderType]) {
             throw new Error("Render type not valid " + renderType);
@@ -265,14 +267,14 @@ THREE.World = function() {
         var renderFunc = renderObj.renderer;
         var renderer = new THREE[renderFunc](renderOptions);
 
-        renderer.setClearColor( SCOPE.clearColor );
+        renderer.setClearColor( scope.clearColor );
 
-        SCOPE.setRenderer(renderer);
+        scope.setRenderer(renderer);
 
     };
 
     //Use shadows in renderer
-    this.useShadows = function(useShadows, mapType, soft) {
+    scope.useShadows = function(useShadows, mapType, soft) {
 
         if(useShadows) {
             RENDERER.shadowMapEnabled = true;
@@ -290,24 +292,24 @@ THREE.World = function() {
     /********************World Object Updation********************/
 
     //Launch World and keep updating
-    this.LaunchWorld = function() {
+    scope.LaunchWorld = function() {
         UPDATING = true;
         CLOCK.start();
-        SCOPE.update();
+        scope.update();
     };
 
     //Stop current updating process
-    this.StopWorld = function() {
+    scope.StopWorld = function() {
         UPDATING = false;
         CLOCK.stop();
     };
 
     //Update world geometery and player actions
-    this.update = function() {
+    scope.update = function() {
 
-        //If world is updating recurse this function
+        //If world is updating recurse scope function
         if(UPDATING) {
-            requestAnimationFrame(SCOPE.update, RENDERER.domElement);
+            requestAnimationFrame(scope.update, RENDERER.domElement);
         }
 
         //Use delta time to update controls
@@ -317,7 +319,7 @@ THREE.World = function() {
         THREE.AnimationHandler.update(delta);
 
         //Render content
-        SCOPE.render(delta);
+        scope.render(delta);
 
     };
 
@@ -326,40 +328,59 @@ THREE.World = function() {
 
     //Clear scene objects
 
-    this.sceneClear = function() { SCENE = new THREE.Scene(); };
+    scope.sceneClear = function() { SCENE = new THREE.Scene(); };
 
     //Remove object in scene by uuid
 
-    this.sceneRemoveByUUID = function(uuid) {
+    scope.sceneRemoveByUUID = function(uuid) {
 
     };
 
     //Remove object in scene by name
 
-    this.sceneRemoveByName = function(name) {
+    scope.sceneRemoveByName = function(name) {
 
     };
 
     //Add a mesh to collidable world
-    this.addMesh = function(newObject) {
+    scope.addMesh = function( mesh ) {
 
         //Add and dispatch event
-        SCENE.add(newObject);
-        OBJECTS.push(newObject);
+        SCENE.add( mesh );
+        OBJECTS.push( mesh );
 
-        SCOPE.dispatch({
+        scope.dispatch({
             type: "add-mesh",
-            object: newObject
+            object: mesh 
         });
 
     };
 
+	//Add meshes from array
+	scope.addMeshes = function( meshes ) {
+
+		if( typeof( meshes ) !== "object" ) {
+
+			throw new Error( "Add meshes requires an array of meshes" );
+
+		}
+
+		var ml = meshes.length;
+
+		for( var i = 0; i < ml; i ++ ) {
+
+			scope.addMesh( meshes[i] );
+
+		}
+
+	};
+
     //Lights are just added to world
-    this.addLight = function(newLight) {
+    scope.addLight = function(newLight) {
 
         SCENE.add(newLight);
 
-        SCOPE.dispatch({
+        scope.dispatch({
             type: "add-light",
             object: newLight
         });
@@ -368,21 +389,23 @@ THREE.World = function() {
 
     //Add a scene camera
 
-    this.addCamera = function(camera, setToActive) {
+    scope.addCamera = function(camera, setToActive) {
 
-        if(!(camera instanceof THREE.Camera)) {
+        if( ! ( camera instanceof THREE.Camera ) ) {
+
             throw new Error("Camera not THREE.Camera");
-        }
+        
+		}
 
-        CAMERAS.push(camera);
+        CAMERAS.push( camera );
 
-        if(setToActive) {CAMERA = camera;}
+        if( setToActive ) { CAMERA = camera; }
 
     };
 
     //Set active Camera
 
-    this.setCamera = function(indexNum) {
+    scope.setCamera = function(indexNum) {
 
         indexNum = indexNum;
         if(!CAMERAS[indexNum]) {
@@ -391,24 +414,24 @@ THREE.World = function() {
 
         CAMERA = CAMERAS[indexNum];
 
-        SCOPE.screenResize();
+        scope.screenResize();
 
     };
 
 
     //Export scene JSON as string
 
-    this.sceneExportJSON = function() {
+    scope.sceneExportJSON = function() {
 
         return JSON.stringify(SCENE.toJSON());
 
     };
 
     //Load from loader module > url, callback
-    this.universalLoad = LOADER.universalLoad;
+    scope.universalLoad = LOADER.universalLoad;
 
     //Load by > type, url, callback
-    this.loadType = LOADER.loadType;
+    scope.loadType = LOADER.loadType;
 
 };
 
