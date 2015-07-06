@@ -7,16 +7,14 @@ THREE.Physics = function( options ) {
     var WORLD = new CANNON.World();
     WORLD.gravity.set( 0, -9.8, 0 );
     WORLD.broadphase = new CANNON.SAPBroadphase( WORLD );
-    WORLD.solver.iterations = 10;
+    WORLD.solver.iterations = ( options.iterations|0 ) || 10;
     //WORLD.solver.tolerance = 0;
 
-    WORLD.allowSleep = options.allowSleep;
-    WORLD.defaultContactMaterial.friction = 1000;
-    WORLD.defaultContactMaterial.restitution = .2;
+    WORLD.allowSleep = !!options.allowSleep;
+    //WORLD.defaultContactMaterial.friction = 1000;
+    //WORLD.defaultContactMaterial.restitution = .2;
 
-    //Wolrd time point
-    var TIMESTEP = 0;
-
+	//Max steps per update
     var MAXSTEPS = 1;
 
     //THREE.js Objects
@@ -46,7 +44,8 @@ THREE.Physics = function( options ) {
 	scope.updateStatic = typeof( options.updateStatic ) !== "undefined" ? 
 		!!options.updateStatic :  true;
 
-    /********************World get and setters********************/
+
+	/********************World get and setters********************/
 
     //Get an object by mesh uuid
     scope.getObject = function(uuid) {
@@ -76,7 +75,6 @@ THREE.Physics = function( options ) {
             delta: delta
         });
 
-        //TIMESTEP += delta * ;
         WORLD.step( 1 / scope.fps );
         scope.updateBodies();
 
@@ -174,7 +172,7 @@ THREE.Physics = function( options ) {
 
 		}
 
-        WORLD.add(cannonBody);
+        WORLD.addBody( cannonBody );
 
     };
 
@@ -223,10 +221,6 @@ THREE.Physics = function( options ) {
     };
 
 	
-	//Clear all body foces
-	scope.clearForces = function() { WORLD.clearForces(); };
-
-
 	//clear movment of a physical body
 	scope.clearMovement = function( body ) {
 

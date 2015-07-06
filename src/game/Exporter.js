@@ -15,7 +15,6 @@ THREE.Exporter = function() {
     this.exportTypes = {
 
         "obj": this.OBJExporter,
-        "scene": this.SceneExporter,
         "stl": this.STLExporter,
         "stlbinary": this.STLBinaryExporter,
         "typedgeometry": this.TypeGeometryExporter

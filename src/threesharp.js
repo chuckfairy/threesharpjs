@@ -28,6 +28,10 @@ THREE.RenderTypes = {
         renderer: "RaytracingRenderer"
     },
 
+	svg: {
+		renderer: "SVGRenderer"
+	},
+
     webgl: {
         renderer: "WebGLRenderer",
         defaults: {

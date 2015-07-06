@@ -37,9 +37,7 @@ THREE.PhysicalMaterial.prototype = {
 		frictionEquationRegularizationTime: 3					
 		
 	},
-
 	
-
 	createContact: function( contact, options ) {
 	
 		var options = typeof( options ) === "object" ? options : {};
@@ -51,4 +49,3 @@ THREE.PhysicalMaterial.prototype = {
 };
 
 THREE.PhysicalDefaultMaterial = new THREE.PhysicalMaterial({ name: "default" });
-
