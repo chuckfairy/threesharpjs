@@ -43,7 +43,8 @@ THREE.Physics = function( options ) {
     this.fps = options.fps ||  20;
 
 	//Update static objects. Bodies with mass of 0
-	this.updateStatic = !!options.updateStatic || true;
+	this.updateStatic = typeof( options.updateStatic ) !== "undefined" ? 
+		!!options.updateStatic :  true;
 
     /********************World get and setters********************/
 
@@ -163,7 +164,7 @@ THREE.Physics = function( options ) {
             cannon: cannonBody
         };
 
-		if( mesh.mass|0 === 0 ) {
+		if( ( mesh.mass|0 ) === 0 ) {
 
 			STATIC_BODIES[uuid] = OBJECTS[uuid];
 
