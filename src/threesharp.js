@@ -35,8 +35,9 @@ THREE.RenderTypes = {
     webgl: {
         renderer: "WebGLRenderer",
         defaults: {
-            antialias: true,
-            alpha: false, devicePixelRation: window.devicePixelRatio || 1
+            antialias: false,
+            alpha: false, 
+			devicePixelRation: window.devicePixelRatio || 1
         }
     },
 

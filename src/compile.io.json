@@ -1,0 +1,11 @@
+{
+
+    "type": "js",
+
+	"header": "//Threes, threejs game and animation framework\n",
+
+    "compile": [
+        "threesharp.js", "loaders/", "exporters/", "rendering/",
+    ]
+
+}

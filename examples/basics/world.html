@@ -35,7 +35,7 @@ camera.lookAt(new THREE.Vector3(0,0,0));
 var controls = new THREE.OrbitControls(camera);
 
 //create geometries with built in colors
-var greyLambert = THREE.Materials.get("greylambert");
+var greyLambert = new THREE.MeshLambertMaterial({ color: 0xFFFFFF }); 
 
 //Create a floor
 var planegeo = new THREE.PlaneBufferGeometry(30, 30, 32);
