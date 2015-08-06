@@ -119,12 +119,15 @@ THREE.Physics = function( options ) {
 		}	
 
 	};
+ 
 
     //Get cannon world for adding stuff to it
     scope.getWorld = function() { return WORLD; };
 
+
     //Get world objects
     scope.getObjects = function() { return OBJECTS; };
+
 
     //Change gravity
     scope.setGravity = function( vector3 ) {

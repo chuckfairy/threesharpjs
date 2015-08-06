@@ -26,6 +26,8 @@
 <!--Main js-->
 <script src="../_js/lib/dat.gui.min.js"></script>
 <script src="../_js/guis/Physics.GUI.js"></script>
+<script src="../../src/physics/PhysicalBody.js"></script>
+
 <script>
 
 //World and controls
@@ -66,7 +68,7 @@ function init() {
     });
 
     //Set Frames per second
-    physics.fps = 40;
+    physics.fps = 20;
 
     //Set GUI see _js/guis/Physics.GUI.js
     physicsGUI = new THREE.Physics.GUI(physics);
@@ -79,7 +81,7 @@ function init() {
         var object = event.object;
 
         //add object to physics world
-        physics.addObject(object);
+        physics.addObject( object );
 
     });
 
@@ -171,14 +173,23 @@ function initShapes() {
     var startPosition4 = tetraMesh.position.clone();
 
 
+    //Torus knot
+    var torusKnotGeo = new THREE.TorusGeometry( 20, 5, 8, 50 );
+    var torusKnotGeo = new THREE.OctahedronGeometry( 10, 2 ); 
+    var torusKnotMesh = new THREE.Mesh( torusKnotGeo, bluePhong );
+    torusKnotMesh.position.y += 30;
+    torusKnotMesh.mass = 10;
+
+
     //Set masses
     boxMesh.mass = sphereMesh.mass = cylinderMesh.mass = tetraMesh.mass = 1;
 
     //Add shapes to world and physics
-    world.addMesh(boxMesh);
-    world.addMesh(sphereMesh);
-    world.addMesh(cylinderMesh);
-    world.addMesh(tetraMesh);
+    world.addMesh( boxMesh );
+    world.addMesh( sphereMesh );
+    world.addMesh( cylinderMesh );
+    world.addMesh( tetraMesh );
+    world.addMesh( torusKnotMesh );
 
 
     //Get cannon bodies for meshes
@@ -193,6 +204,7 @@ function initShapes() {
         spherebody.wakeUp();
         cylinderBody.wakeUp();
         tetraBody.wakeUp();
+        torusKnotMesh.body.wakeUp();
 
         //Set starting positions
         boxbody.position.copy(startPosition1);

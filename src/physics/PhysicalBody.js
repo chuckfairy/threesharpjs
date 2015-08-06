@@ -167,12 +167,13 @@ THREE.PhysicalBody.createByGeometry = function( mesh ) {
 	}
 
 	//Cylinder
-	else if(geometry instanceof THREE.CylinderGeometry) {
+	else if(geometry instanceof THREE.OctahedronGeometry ) {
 		return THREE.PhysicalBody.createCylinderShape(mesh);
 	}
 
-	//Convex
+	//Trimesh
 	else {
+        console.log( "SDF" );
 		return THREE.PhysicalBody.createTrimeshShape(mesh);
 	}
 
