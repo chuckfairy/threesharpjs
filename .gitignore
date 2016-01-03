@@ -9,3 +9,5 @@ examples/_models/fighter/
 examples/_models/skatepark/
 examples/_models/blockster/
 server/
+*.swp
+*.swo
