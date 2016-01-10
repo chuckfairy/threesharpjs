@@ -39,7 +39,7 @@ var world, camera, skyBox;
 var sequence,
     objectGeometry = new THREE.OctahedronGeometry(2, 2),
 
-    objectMaterial = new THREE.MeshLambertMaterial({
+    objectMaterial = new THREE.MeshPhongMaterial({
         color: 0xFFFFFF, shading: THREE.FlatShading
     }),
 
@@ -82,26 +82,33 @@ function init() {
     world.addLight(light);
 
     var geometry = new THREE.SphereGeometry(1000, 10, 10);
-    var texture = THREE.ImageUtils.loadTexture( '../_assets/images/hubble.jpg' );
-    texture.magFilter = THREE.LinearMipMapLinear;
-    texture.minFilter = THREE.LinearMipMapLinear;
 
-    //Create "space" skyBox
-    var uniforms = {
-        "tDiffuse": { type: 't', value: texture },
-        "opacity":  { type: "f", value: 1.0 }
-    };
+    var textureLoader = new THREE.TextureLoader();
 
-    var material = new THREE.ShaderMaterial( {
-        uniforms:       uniforms,
-        vertexShader:   THREE.CopyShader.vertexShader,
-        fragmentShader: THREE.CopyShader.fragmentShader
+    textureLoader.load( '../_assets/images/hubble.jpg', function( texture ) {
+
+        texture.magFilter = THREE.LinearMipMapLinear;
+        texture.minFilter = THREE.LinearMipMapLinear;
+
+        //Create "space" skyBox
+        var uniforms = {
+            "tDiffuse": { type: 't', value: texture },
+            "opacity":  { type: "f", value: 1.0 }
+        };
+
+        var material = new THREE.ShaderMaterial( {
+            uniforms:       uniforms,
+            vertexShader:   THREE.CopyShader.vertexShader,
+            fragmentShader: THREE.CopyShader.fragmentShader
+        });
+
+        skyBox = new THREE.Mesh(geometry, material);
+        skyBox.scale.set(-1, 1, 1);
+        skyBox.renderOrder = 10.0;
+        world.addLight(skyBox);
+
     });
 
-    skyBox = new THREE.Mesh(geometry, material);
-    skyBox.scale.set(-1, 1, 1);
-    skyBox.renderDepth = 10.0;
-    world.addLight(skyBox);
 
     //Launch world
     world.LaunchWorld();

@@ -276,14 +276,18 @@ THREE.World = function() {
     //Use shadows in renderer
     scope.useShadows = function(useShadows, mapType, soft) {
 
-        if(useShadows) {
-            RENDERER.shadowMapEnabled = true;
+        if( useShadows ) {
+
+            RENDERER.shadowMap.enabled = true;
             if(mapType) { RENDERER.shadowMapType = mapType; }
             if(soft) { RENDERER.shadowMapSoft = true; }
+
         }
 
         else {
-            RENDERER.shadowMapEnabled = false;
+
+            RENDERER.shadowMap.enabled = false;
+
         }
 
     };
@@ -315,8 +319,8 @@ THREE.World = function() {
         //Use delta time to update controls
         var delta = CLOCK.getDelta();
 
-        //Update animations
-        THREE.AnimationHandler.update(delta);
+        ////Update animations
+        //THREE.AnimationHandler.update(delta);
 
         //Render content
         scope.render(delta);

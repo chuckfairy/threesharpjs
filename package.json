@@ -15,8 +15,7 @@
     },
 
     "dependencies": {
-        "node-static": "*", 
-        "cfcompile": "https://github.com/chuckfairy/cfcompile"
+        "cfcompile": "*"
     },
 
     "author": "Chuck Fairy",

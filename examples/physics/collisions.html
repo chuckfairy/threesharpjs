@@ -31,7 +31,7 @@
 //Create world and setup
 var world = new THREE.World();
 world.init("webGL", {renderType: "webgl"});
-world.useShadows(true);
+//world.useShadows(true);
 
 //Get and move camera default is at 0,0,0
 var camera = world.getCamera();
@@ -60,12 +60,13 @@ world.on("add-mesh", function(event) {
 
     //add object to physics world
     physics.addObject(object);
+
 });
 
 //create geometries with built in colors
-var greyLambert = new THREE.MeshLambertMaterial({color: 0xffffff});
-var bluePhong = new THREE.MeshPhongMaterial({
-    ambient: 0x000000, color: 0x9EB5FF, specular: 0xffffff
+var greyLambert = new THREE.MeshLambertMaterial({ color: 0xFFFFFF });
+var bluePhong = new THREE.MeshLambertMaterial({
+    color: 0x9EB5FF
 });
 
 //Create a floor
@@ -108,8 +109,8 @@ directionallight.shadowBias = .0001;
 directionallight.shadowCameraNear = 5;
 directionallight.shadowCameraFar = 230;
 directionallight.shadowCameraFov = 80;
-directionallight.shadowMapHeight = 4096; //2048
-directionallight.shadowMapWidth = 4096;
+directionallight.shadowMapHeight = 2048; //2048
+directionallight.shadowMapWidth = 2048;
 directionallight.shadowDarkness = .8;
 //directionallight.shadowCameraVisible = true;
 

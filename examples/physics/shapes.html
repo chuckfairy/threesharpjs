@@ -54,7 +54,7 @@ function init() {
 
     world = new THREE.World();
     world.init("webGL", {renderType: "webgl"});
-    world.useShadows(true);
+    //world.useShadows(true);
 
     //Get and move camera default is at 0,0,0
     camera = world.getCamera();
@@ -187,7 +187,7 @@ function initShapes() {
     //Add shapes to world and physics
     world.addMesh( boxMesh );
     world.addMesh( sphereMesh );
-    world.addMesh( cylinderMesh );
+    //world.addMesh( cylinderMesh );
     world.addMesh( tetraMesh );
     world.addMesh( torusKnotMesh );
 
@@ -202,7 +202,7 @@ function initShapes() {
     var boxSetup = function() {
         boxbody.wakeUp();
         spherebody.wakeUp();
-        cylinderBody.wakeUp();
+        //cylinderBody.wakeUp();
         tetraBody.wakeUp();
         torusKnotMesh.body.wakeUp();
 
@@ -213,8 +213,8 @@ function initShapes() {
         spherebody.position.copy(startPosition2);
         spherebody.quaternion.copy(startQuat2);
 
-        cylinderBody.position.copy(startPosition3);
-        cylinderBody.quaternion.copy(startQuat3);
+        //cylinderBody.position.copy(startPosition3);
+        //cylinderBody.quaternion.copy(startQuat3);
 
         tetraBody.position.copy(startPosition4);
         tetraBody.quaternion.copy(startQuat4);
@@ -233,10 +233,10 @@ function initShapes() {
         spherebody.velocity.set(0, 10, 40);
         spherebody.angularVelocity.set(0, 1, 4);
 
-        cylinderBody.velocity.set(20, 0, 0);
-        cylinderBody.angularVelocity.set(0, 3, 1);
+        //cylinderBody.velocity.set(20, 0, 0);
+        //cylinderBody.angularVelocity.set(0, 3, 1);
 
-        tetraBody.velocity.set(-20, 0, 0);
+        tetraBody.velocity.set(-10, 0, 0);
         tetraBody.angularVelocity.set(0, 4, 4);
 
     };
