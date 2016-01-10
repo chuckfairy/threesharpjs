@@ -47,9 +47,7 @@ function compileCommand() {
 
     //Compile editor app
     if(commandOptions[0] === "app") {
-        COMPILER.compileFromConfigFile(__dirname + "/app/compile.json", function() {
-
-        });
+        COMPILER.compileFromConfigFile(__dirname + "/app/compile.json", function() { });
     }
 };
 

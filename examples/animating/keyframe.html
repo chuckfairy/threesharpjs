@@ -44,7 +44,9 @@ camera.lookAt(new THREE.Vector3(0,0,0));
 var controls = new THREE.OrbitControls(camera, world.getRenderer().domElement);
 
 //create geometries with built in colors
-var greyLambert = THREE.Materials.get("greylambert");
+var greyLambert = new THREE.MeshPhongMaterial({
+    color: 0xFEFFFF, shading: THREE.FlatShading
+});
 
 //Create sample box
 var boxgeo = new THREE.OctahedronGeometry(5, 3);
