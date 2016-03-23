@@ -41,7 +41,7 @@ THREE.Physics = function( options ) {
     scope.fps = options.fps ||  20;
 
 	//Update static objects. Bodies with mass of 0
-	scope.updateStatic = typeof( options.updateStatic ) !== "undefined" ? 
+	scope.updateStatic = typeof( options.updateStatic ) !== "undefined" ?
 		!!options.updateStatic :  true;
 
 
@@ -88,7 +88,7 @@ THREE.Physics = function( options ) {
 		var ol = bodies.length;
 
         for( var uuid in bodies ) {
-            
+
 			var objects = bodies[uuid];
             var cannon = objects.cannon;
             var mesh = objects.object;
@@ -116,10 +116,10 @@ THREE.Physics = function( options ) {
             mesh.position.copy( cannon.position );
             mesh.quaternion.copy( cannon.quaternion );
 
-		}	
+		}
 
 	};
- 
+
 
     //Get cannon world for adding stuff to it
     scope.getWorld = function() { return WORLD; };
@@ -135,7 +135,7 @@ THREE.Physics = function( options ) {
         if( !( vector3 instanceof THREE.Vector3 ) ) {
 
             throw new Error("Parameter not THREE.Vector3");
-        
+
 		}
 
         WORLD.gravity.set(vector3.x, vector3.y, vector3.z);
@@ -148,7 +148,7 @@ THREE.Physics = function( options ) {
         if( !( mesh instanceof THREE.Object3D ) ) {
 
             throw new Error("Parameter not THREE.Object3D");
-        
+
 		}
 
         //Create cannon body
@@ -182,7 +182,7 @@ THREE.Physics = function( options ) {
 
 	//Add objects from array
 	scope.addObjects = function ( array, options ) {
-		
+
 		if( typeof( array ) !== "object" ) {
 
 			throw new Error( "Add objects requires an array of meshes");
@@ -195,8 +195,8 @@ THREE.Physics = function( options ) {
 
 			scope.addObject( array[i], options );
 
-		}	
-	
+		}
+
 	}
 
     //Remove object from simulation
@@ -215,7 +215,7 @@ THREE.Physics = function( options ) {
 
     };
 
-    
+
 	//Clear world bodies
     scope.clearWorld = function() {
 
@@ -223,11 +223,11 @@ THREE.Physics = function( options ) {
 
     };
 
-	
+
 	//clear movment of a physical body
 	scope.clearMovement = function( body ) {
 
-		if( typeof( body ) === "number" ) { 
+		if( typeof( body ) === "number" ) {
 
 			body = scope.getObject( body );
 

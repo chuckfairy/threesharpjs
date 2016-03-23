@@ -11,3 +11,4 @@ examples/_models/blockster/
 server/
 *.swp
 *.swo
+.directory
