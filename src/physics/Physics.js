@@ -93,10 +93,23 @@ THREE.Physics = function( options ) {
             var cannon = objects.cannon;
             var mesh = objects.object;
 
-			//dont update on equality
-            if( mesh.position.equals( cannon.position ) ) { continue; }
+            var worldVec = new THREE.Vector3();
 
-            mesh.position.copy( cannon.position );
+            worldVec.setFromMatrixPosition( mesh.matrixWorld );
+
+
+			//dont update on equality
+
+            if( worldVec.equals( cannon.position )
+                    && mesh.quaternion.equals( cannon.quaternion )
+            ) { continue; }
+
+            mesh.matrixWorld.setPosition( worldVec.copy( cannon.position ) );
+
+            mesh.parent.worldToLocal( worldVec );
+
+            mesh.position.copy( worldVec );
+
             mesh.quaternion.copy( cannon.quaternion );
 
         }
@@ -151,15 +164,34 @@ THREE.Physics = function( options ) {
 
 		}
 
+        if( ! ( mesh instanceof THREE.Mesh ) ) {
+
+            return scope.addObjects( mesh.children, options );
+
+        }
+
         //Create cannon body
         var physicalBody = new THREE.PhysicalBody(mesh, options);
         var cannonBody = physicalBody.getBody();
-        cannonBody.position.copy(mesh.position);
-        cannonBody.quaternion.copy(mesh.quaternion);
+
+        var worldVec = new THREE.Vector3();
+
+        mesh.updateMatrix();
+        mesh.updateMatrixWorld();
+
+        mesh.matrixAutoUpdate = true;
+        mesh.matrixWorldAutoUpdate = true;
+
+        worldVec.setFromMatrixPosition( mesh.matrixWorld );
+
+        cannonBody.position.copy( worldVec );
+        cannonBody.quaternion.copy( mesh.quaternion );
+
 
         //Save objects to active objects using uuid
         //and add to world
         var uuid = mesh.uuid;
+
         OBJECTS[uuid] = {
             object: mesh,
             cannon: cannonBody
