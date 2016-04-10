@@ -15,7 +15,7 @@ THREE.PhysicalMaterial = function( options ) {
 	for( var name in defaults ) {
 
 		scope.contactAttributes[name] = typeof( options[name] ) !== "undefined" ?
-			options[name] : defaults[name];	
+			options[name] : defaults[name];
 
 	}
 
@@ -26,26 +26,26 @@ THREE.PhysicalMaterial.prototype = {
 	constructor: THREE.PhysicalMaterial,
 
 	contactAttributes: {},
-		
+
 	defaultAttributes: {
-			
+
 		friction: 1,
 		restitution: 0.3,
 		contactEquationStiffness: 1e8,
 		contactEquationRelaxtion: 3,
 		frictionEquationStiffness: 1e8,
-		frictionEquationRegularizationTime: 3					
-		
+		frictionEquationRegularizationTime: 3
+
 	},
-	
+
 	createContact: function( contact, options ) {
-	
+
 		var options = typeof( options ) === "object" ? options : {};
 
 		return new CANNON.ContactMaterial( this, contact, this.contactAttributes );
-		
-	}	
-	
+
+	}
+
 };
 
 THREE.PhysicalDefaultMaterial = new THREE.PhysicalMaterial({ name: "default" });
