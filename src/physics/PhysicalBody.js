@@ -34,16 +34,16 @@ THREE.PhysicalBody = function(mesh, options) {
         var mass = (mesh.mass) ? mesh.mass - 0.0 : 0;
 
         var bodyOptions = { mass: mass };
-        
-		if( options.material instanceof CANNON.Material || 
-			options.material instanceof THREE.PhysicalMaterial 
-		) { 
-			
-			bodyOptions.material = options.material; 
-		
+
+		if( options.material instanceof CANNON.Material ||
+			options.material instanceof THREE.PhysicalMaterial
+		) {
+
+			bodyOptions.material = options.material;
+
 		} else if ( typeof( options.material ) === "object" ) {
 
-			bodyOptions.material = new THREE.PhysicalMaterial( options.material );	
+			bodyOptions.material = new THREE.PhysicalMaterial( options.material );
 
 		} else {
 
@@ -57,8 +57,10 @@ THREE.PhysicalBody = function(mesh, options) {
         var offset = new CANNON.Quaternion().copy(mesh.quaternion);
 
         BODY.addShape(SHAPE, offset);
-    
+
 		mesh.body = BODY;
+
+        BODY.mesh = mesh;
 
 	};
 
@@ -74,9 +76,9 @@ THREE.PhysicalBody = function(mesh, options) {
 
     //Initialize body
     if( mesh ) {
-        
+
 		SCOPE.loadMesh(mesh, options);
-    
+
 	}
 
 };
@@ -135,9 +137,9 @@ THREE.PhysicalBody.createByType = function( mesh, type ) {
 	var typemethod = THREE.PhysicalBody.types[type];
 
 	if( !typemethod ) {
-		
+
 		throw new Error(type + " is not a valid body type");
-	
+
 	}
 
 	return THREE.PhysicalBody[typemethod](mesh);
@@ -253,7 +255,7 @@ THREE.PhysicalBody.createTrimeshShape = function( mesh, quality ) {
 		var geo = mesh.geometry;
 
 	}
-		
+
 	var vertices = [];
 	var indices = [];
 
@@ -271,7 +273,7 @@ THREE.PhysicalBody.createTrimeshShape = function( mesh, quality ) {
 	var faceLength = geo.faces.length;
 
 	for( var i = 0; i < faceLength; i++ ) {
-	
+
 		var face = geo.faces[i];
 		indices.push( face.a );
 		indices.push( face.b );
@@ -290,9 +292,9 @@ THREE.PhysicalBody.createConvexShape = function( mesh, quality ) {
 	var geo = mesh.geomtry;
 
 	if( mesh.geometry instanceof THREE.BufferGeometry ) {
-	
+
 		geo = new THREE.Geometry().fromBufferGeometry( mesh.geometry );
-	
+
 	}
 
 	//Create cannon mesh shape
@@ -312,22 +314,22 @@ THREE.PhysicalBody.createConvexShape = function( mesh, quality ) {
 	var faces = [];
 	var fl = rawFaces.length;
 	for( var j = 0; j < fl; j++ ) {
-	
+
 		var face = rawFaces[j];
 		faces.push([face.a, face.b, face.c]);
-	
+
 	}
 
 	try {
-	
+
 		return new CANNON.ConvexPolyhedron(verts, faces);
-	
+
 	}
 
 	catch( e ) {
-	
+
 		return THREE.PhysicalBody.createBoxShape(mesh);
-	
+
 	}
 
 };
