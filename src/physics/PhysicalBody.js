@@ -306,7 +306,8 @@ THREE.PhysicalBody.createConvexShape = function( mesh, quality ) {
 	// Get vertices
 	var verts = [];
 	for(var j=0; j<rawVerts.length; j++) {
-		var v = rawVerts[j];
+		var v = new THREE.Vector3().copy( rawVerts[j] );
+        v.multiplyScalar( mesh.scale.x );
 		verts.push(new CANNON.Vec3(v.x, v.y, v.z));
 	}
 

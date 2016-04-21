@@ -6,7 +6,7 @@ THREE.Physics = function( options ) {
 
     var WORLD = new CANNON.World();
     WORLD.gravity.set( 0, -9.8, 0 );
-    WORLD.broadphase = new CANNON.SAPBroadphase( WORLD );
+    WORLD.broadphase = new CANNON.NaiveBroadphase( WORLD );
     WORLD.solver.iterations = ( options.iterations|0 ) || 10;
     //WORLD.solver.tolerance = 0;
 

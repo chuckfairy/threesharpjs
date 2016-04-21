@@ -20,6 +20,31 @@ THREE.Event.prototype = {
 
     },
 
+
+    //Remove listener
+
+    removeListener: function( type, listener ) {
+
+		if ( this._listeners === undefined ) return;
+
+		var listeners = this._listeners;
+		var listenerArray = listeners[ type ];
+
+		if ( listenerArray !== undefined ) {
+
+			var index = listenerArray.indexOf( listener );
+
+			if ( index !== - 1 ) {
+
+				listenerArray.splice( index, 1 );
+
+			}
+
+		}
+
+	},
+
+
     //Dispatch function
     dispatch: function(eventData) {
 
