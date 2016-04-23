@@ -68,8 +68,11 @@ THREE.World = function() {
 
         scope.clearColor = options.clearColor || 0x000000;
 
+        options.opacity = typeof options.opacity === "undefined"
+            ? 1 : options.opacity;
+
         //Setup rendering and screen
-        scope.setRenderType(renderType);
+        scope.setRenderType( renderType, options );
 
         window.addEventListener("resize", scope.screenResize, false);
 
@@ -267,7 +270,7 @@ THREE.World = function() {
         var renderFunc = renderObj.renderer;
         var renderer = new THREE[renderFunc](renderOptions);
 
-        renderer.setClearColor( scope.clearColor );
+        renderer.setClearColor( scope.clearColor, options.opacity );
 
         scope.setRenderer(renderer);
 
