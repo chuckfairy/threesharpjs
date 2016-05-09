@@ -80,6 +80,8 @@ THREE.KeyboardControls = function(options, domElement) {
         scope.domElement.removeEventListener("mousemove", mousemove, false);
         scope.domElement.removeEventListener("scroll", scroll, false);
 
+        HELDKEYS = {};
+
         scope.live = false;
 
     };
